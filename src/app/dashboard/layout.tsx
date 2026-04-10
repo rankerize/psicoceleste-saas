@@ -6,6 +6,7 @@ const navItems = [
   { href: '/dashboard/empleados', icon: '👥', label: 'Empleados' },
   { href: '/dashboard/aplicaciones', icon: '📋', label: 'Aplicaciones' },
   { href: '/dashboard/resultados', icon: '📊', label: 'Resultados' },
+  { href: '/dashboard/suscripcion', icon: '💳', label: 'Facturación' },
   { href: '/dashboard/configuracion', icon: '⚙️', label: 'Configuración' },
 ];
 

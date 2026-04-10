@@ -32,8 +32,9 @@ export default function LoginPage() {
     try {
       await signInWithGoogle();
       router.push('/dashboard');
-    } catch {
-      setError('No se pudo iniciar sesión con Google. Inténtalo de nuevo.');
+    } catch (err: any) {
+      console.error("Google Auth Error:", err);
+      setError(`Error Firebase: ${err.message || 'Error desconocido'}`);
     } finally {
       setLoading(false);
     }

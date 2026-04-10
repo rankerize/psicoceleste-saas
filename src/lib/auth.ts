@@ -1,3 +1,5 @@
+'use client';
+
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
@@ -9,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from './firebase';
+import { useState, useEffect } from 'react';
 
 const googleProvider = new GoogleAuthProvider();
 
@@ -50,6 +53,22 @@ export async function signInWithGoogle() {
 
 export async function logout() {
   return signOut(auth);
+}
+
+/** Hook para obtener el usuario autenticado en componentes cliente */
+export function useAuth() {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  return { user, loading };
 }
 
 export { onAuthStateChanged, auth };

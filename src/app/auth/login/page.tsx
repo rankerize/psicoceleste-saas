@@ -54,13 +54,11 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
-            <div style={{
-              width: '48px', height: '48px', borderRadius: '14px',
-              background: 'linear-gradient(135deg, #0ea5e9, #7c3aed)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '24px', boxShadow: '0 0 30px rgba(14,165,233,0.3)'
-            }}>🩵</div>
-            <span style={{ fontSize: '1.4rem', fontWeight: '800', color: 'white' }}>PsicoCeleste</span>
+            <img 
+              src="/logo.jpg" 
+              alt="PsicoLab Logo" 
+              style={{ height: '48px', width: 'auto', borderRadius: '8px', boxShadow: '0 0 20px rgba(255,255,255,0.1)' }}
+            />
           </Link>
           <p style={{ color: '#64748b', fontSize: '0.875rem', marginTop: '0.5rem' }}>
             Plataforma para psicólogos especializados en SST

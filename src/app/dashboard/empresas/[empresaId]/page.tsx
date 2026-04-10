@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   Users, Plus, Search, Edit2, Trash2, Upload, ChevronLeft,
   Hash, Briefcase, Phone, Mail, AlertCircle, Loader2, X, Check,
-  ClipboardList, FileText, Building2, UserCheck
+  ClipboardList, FileText, Building2, UserCheck, Download, Activity
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
@@ -179,6 +179,19 @@ export default function EmpleadosPage() {
     if (failed > 0) setError(`${imported} importados, ${failed} fallaron.`);
   };
 
+  const descargarPlantilla = () => {
+     const headers = "cedula,nombre,cargo,tipoCargo,area,email,telefono\n";
+     const ejemplo = "11111111,Juan Perez,Gerente,jefatura,Gerencia,juan@empresa.com,3000000000\n22222222,Maria Ruiz,Operario,operario,Produccion,maria@empresa.com,3000000000";
+     const blob = new Blob([headers + ejemplo], { type: 'text/csv;charset=utf-8;' });
+     const url = URL.createObjectURL(blob);
+     const link = document.createElement("a");
+     link.setAttribute("href", url);
+     link.setAttribute("download", "plantilla_empleados.csv");
+     document.body.appendChild(link);
+     link.click();
+     document.body.removeChild(link);
+  };
+
   // ── Filtrado ──────────────────────────────────────────────────────────────────
 
   const filtrados = empleados.filter(e => {
@@ -222,23 +235,45 @@ export default function EmpleadosPage() {
             </p>
           )}
         </div>
-        <div className="flex items-center gap-2 self-start">
+        <div className="flex flex-wrap items-center gap-3 self-start">
+          
+          {/* Botón Resultados */}
+          <Link
+            href={`/dashboard/empresas/${empresaId}/resultados`}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white rounded-xl transition-all shadow-lg shadow-purple-500/20 font-bold"
+            title="Ver las métricas y reportes AI para esta empresa"
+          >
+            <Activity size={18} /> Analíticas e Informes
+          </Link>
+
+          <div className="w-px h-6 bg-slate-700 hidden sm:block mx-1"></div>
+
+          {/* Botón Descargar Plantilla */}
+          <button
+            onClick={descargarPlantilla}
+            className="flex items-center gap-2 px-3 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-colors text-sm font-medium border border-white/5"
+            title="Descargar plantilla de Excel (CSV) para llenado masivo"
+          >
+            <Download size={16} /> Plantilla CSV
+          </button>
+          
           {/* Importar CSV */}
           <label
             id="btn-importar-csv"
-            className="btn-secondary flex items-center gap-2 cursor-pointer"
-            title="Importar desde CSV (cedula,nombre,cargo,tipoCargo,area,email,telefono)"
+            className="btn-secondary flex items-center gap-2 cursor-pointer bg-sky-500/10 text-sky-400 hover:bg-sky-500/20 border border-sky-500/20"
+            title="Sube tu archivo CSV lleno para importar múltiples empleados a la vez"
           >
             {csvLoading ? <Loader2 size={16} className="animate-spin" /> : <Upload size={16} />}
-            Importar CSV
+            Subir Empleados (Lote)
             <input type="file" accept=".csv" className="hidden" onChange={onImportarCSV} />
           </label>
+
           <button
             id="btn-nuevo-empleado"
             onClick={() => { setForm(EMPTY_FORM); setEditando(null); setShowModal(true); }}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-400 hover:to-emerald-500 shadow-lg shadow-emerald-500/20"
           >
-            <Plus size={16} /> Nuevo Empleado
+            <Plus size={16} /> Registrar Uno
           </button>
         </div>
       </div>

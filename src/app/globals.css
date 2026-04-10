@@ -167,18 +167,20 @@ body {
   border-color: rgba(255,255,255,0.2);
 }
 
-/* Input styles */
-.input-field {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 0.75rem 1rem;
-  color: white;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  outline: none;
-  font-family: var(--font-inter);
+@layer components {
+  /* Input styles */
+  .input-field {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    color: white;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    outline: none;
+    font-family: var(--font-inter);
+  }
 }
 
 .input-field::placeholder {

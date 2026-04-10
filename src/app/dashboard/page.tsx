@@ -25,6 +25,7 @@ interface EmpresaResumen {
   id: string;
   nombre: string;
   sector: string;
+  creadoEn?: any;
   total: number;
   completados: number;
 }
@@ -74,6 +75,7 @@ export default function DashboardPage() {
             id: emp.id,
             nombre: emp.nombre,
             sector: emp.sector,
+            creadoEn: (emp as any).creadoEn,
             total: emplEmp.length,
             completados: emplEmp.filter((e: Record<string,unknown>) => e.estadoBateria === 'completado').length,
           };
@@ -163,131 +165,83 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      {/* Cuerpo: Empresas + Acciones rápidas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Empresas recientes */}
-        <div className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-white font-semibold flex items-center gap-2">
-              <Building2 size={18} className="text-sky-400" /> Empresas activas
-            </h2>
-            <Link href="/dashboard/empresas" className="text-xs text-sky-400 hover:underline flex items-center gap-1">
-              Ver todas <ArrowRight size={13} />
-            </Link>
-          </div>
-
-          {loading ? (
-            <div className="space-y-3">
-              {[1,2,3].map(i => (
-                <div key={i} className="glass-card p-4 animate-pulse">
-                  <div className="h-4 bg-white/10 rounded w-1/2 mb-2" />
-                  <div className="h-2 bg-white/5 rounded w-full" />
-                </div>
-              ))}
-            </div>
-          ) : empresas.length === 0 ? (
-            <div className="glass-card p-8 text-center">
-              <Building2 className="mx-auto text-slate-600 mb-3" size={36} />
-              <p className="text-slate-300 text-sm mb-3">Aún no tienes empresas registradas</p>
-              <Link href="/dashboard/empresas" className="btn-primary text-sm inline-flex items-center gap-2">
-                <Plus size={15} /> Agregar primera empresa
-              </Link>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {empresas.map(emp => {
-                const pct = emp.total > 0 ? Math.round((emp.completados / emp.total) * 100) : 0;
-                return (
-                  <Link
-                    key={emp.id}
-                    href={`/dashboard/empresas/${emp.id}`}
-                    className="glass-card p-4 flex items-center gap-4 hover:border-sky-500/30 transition-all group"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0">
-                      <Building2 className="text-sky-400" size={18} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-white font-medium text-sm truncate">{emp.nombre}</p>
-                      <div className="flex items-center gap-2 mt-1.5">
-                        <div className="flex-1 bg-white/5 rounded-full h-1.5">
-                          <div
-                            className="h-1.5 rounded-full bg-sky-500 transition-all duration-700"
-                            style={{ width: `${pct}%` }}
-                          />
-                        </div>
-                        <span className="text-xs text-slate-400 whitespace-nowrap">
-                          {emp.completados}/{emp.total} completados
-                        </span>
-                      </div>
-                    </div>
-                    <ArrowRight size={15} className="text-slate-600 group-hover:text-sky-400 transition-colors" />
-                  </Link>
-                );
-              })}
-            </div>
-          )}
+      {/* Cuerpo: Empresas */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-white font-semibold flex items-center gap-2">
+            <Building2 size={18} className="text-sky-400" /> Empresas activas
+          </h2>
+          <Link href="/dashboard/empresas" className="text-xs text-sky-400 hover:underline flex items-center gap-1">
+            Ver todas <ArrowRight size={13} />
+          </Link>
         </div>
 
-        {/* Acciones rápidas */}
-        <div>
-          <h2 className="text-white font-semibold mb-4 flex items-center gap-2">
-            <TrendingUp size={18} className="text-violet-400" /> Acciones rápidas
-          </h2>
+        {loading ? (
           <div className="space-y-3">
-            {[
-              {
-                href: '/dashboard/empresas',
-                icon: <Building2 size={18} />,
-                title: 'Gestionar empresas',
-                desc: 'Registrar o editar clientes',
-                color: 'text-sky-400',
-              },
-              {
-                href: '/dashboard/empresas',
-                icon: <Users size={18} />,
-                title: 'Gestionar empleados',
-                desc: 'Agregar o importar CSV',
-                color: 'text-violet-400',
-              },
-              {
-                href: '/bateria',
-                icon: <ClipboardList size={18} />,
-                title: 'Iniciar batería',
-                desc: 'Aplicación digital en pantalla',
-                color: 'text-emerald-400',
-              },
-              {
-                href: '/dashboard/resultados',
-                icon: <TrendingUp size={18} />,
-                title: 'Ver resultados',
-                desc: 'Perfiles de riesgo calificados',
-                color: 'text-amber-400',
-              },
-            ].map(a => (
-              <Link
-                key={a.href + a.title}
-                href={a.href}
-                className="glass-card p-4 flex items-center gap-3 hover:border-sky-500/30 transition-all group"
-              >
-                <div className={`${a.color} opacity-80 group-hover:opacity-100`}>{a.icon}</div>
-                <div className="flex-1">
-                  <p className="text-white text-sm font-medium">{a.title}</p>
-                  <p className="text-slate-500 text-xs">{a.desc}</p>
+            {[1,2,3].map(i => (
+              <div key={i} className="glass-card p-6 animate-pulse flex gap-4">
+                <div className="w-12 h-12 bg-white/10 rounded-xl shrink-0" />
+                <div className="flex-1 space-y-2 py-1">
+                  <div className="h-4 bg-white/10 rounded w-1/3" />
+                  <div className="h-3 bg-white/5 rounded w-1/4" />
                 </div>
-                <ArrowRight size={14} className="text-slate-600 group-hover:text-sky-400 transition-colors" />
-              </Link>
+              </div>
             ))}
           </div>
-
-          {/* Marco legal */}
-          <div className="glass-card p-4 mt-4 border-sky-500/10">
-            <p className="text-xs text-slate-500 leading-relaxed">
-              🔒 <strong className="text-slate-400">Marco legal:</strong> Resolución 2646/2008 —
-              Batería validada Ministerio Protección Social 2010 — Resolución 2404/2019
-            </p>
+        ) : empresas.length === 0 ? (
+          <div className="glass-card p-12 text-center">
+            <Building2 className="mx-auto text-slate-600 mb-4" size={48} />
+            <p className="text-slate-300 text-lg font-medium mb-4">Aún no tienes empresas registradas</p>
+            <Link href="/dashboard/empresas" className="btn-primary text-sm inline-flex items-center gap-2">
+              <Plus size={16} /> Agregar primera empresa
+            </Link>
           </div>
-        </div>
+        ) : (
+          <div className="space-y-4">
+            {empresas.map(emp => {
+              const fetchDate = emp.creadoEn?.toDate ? emp.creadoEn.toDate().toLocaleDateString() : 'Recientemente';
+              
+              return (
+                <div
+                  key={emp.id}
+                  className="glass-card p-5 flex flex-col md:flex-row md:items-center gap-4 hover:border-sky-500/30 transition-all border-l-4 border-transparent hover:border-l-sky-500"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0">
+                    <Building2 className="text-sky-400" size={24} />
+                  </div>
+                  
+                  <div className="flex-1 min-w-0 flex flex-col justify-center">
+                    <p className="text-white font-bold text-base truncate mb-1">{emp.nombre}</p>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
+                      <span className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded">
+                        <CheckCircle2 size={12} className="text-emerald-400" /> 
+                        {emp.completados} baterías aplicadas
+                      </span>
+                      <span className="flex items-center gap-1">
+                        Última act.: <span className="text-slate-300">{fetchDate}</span>
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t border-white/5 md:border-t-0">
+                    <Link 
+                      href={`/dashboard/empresas/${emp.id}`} 
+                      className="flex-1 md:flex-none btn-secondary text-sm flex items-center justify-center gap-2 py-2 px-4 shadow-sm"
+                    >
+                      <Users size={14} /> Ver empleados
+                    </Link>
+                    <Link 
+                      href="/dashboard/resultados" 
+                      className="flex-1 md:flex-none btn-primary text-sm flex items-center justify-center gap-2 py-2 px-4 bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 shadow-md shadow-sky-900/50 border-none"
+                    >
+                      <TrendingUp size={14} /> Ver resultados
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

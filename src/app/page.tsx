@@ -8,13 +8,11 @@ export default function LandingPage() {
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: '64px' }}>
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-            <div style={{
-              width: '36px', height: '36px', borderRadius: '10px',
-              background: 'linear-gradient(135deg, #0ea5e9, #7c3aed)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: '18px'
-            }}>🩵</div>
-            <span style={{ fontSize: '1.15rem', fontWeight: '700', color: 'white' }}>PsicoCeleste</span>
+            <img 
+              src="/logo.jpg" 
+              alt="PsicoLab Logo" 
+              style={{ height: '36px', width: 'auto', borderRadius: '4px' }}
+            />
           </div>
 
           {/* Nav Links */}
@@ -170,6 +168,37 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Formatos Físicos Descargables */}
+      <section id="formatos" style={{ padding: '2rem 1.5rem', maxWidth: '1000px', margin: '4rem auto 0' }}>
+        <div className="glass" style={{ padding: '3rem 2rem', borderRadius: '24px', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'linear-gradient(135deg, rgba(8,145,178,0.1), rgba(124,58,237,0.05))', border: '1px solid rgba(14,165,233,0.2)' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>🖨️</div>
+            <h2 style={{ fontSize: '1.75rem', fontWeight: '700', color: 'white', marginBottom: '0.75rem' }}>¿Necesitas aplicar la batería en papel impreso?</h2>
+            <p style={{ color: '#94a3b8', fontSize: '1rem', maxWidth: '650px', margin: '0 auto', lineHeight: '1.6' }}>
+              Descarga aquí los cuadernillos oficiales en PDF listos para imprimir gratis. Más adelante podrás subir las fotos para extraer los datos con nuestro <strong>servicio de OCR (Próximamente)</strong> o digitarlos manualmente.
+            </p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '1rem', marginTop: '1.5rem' }}>
+            {[
+              { title: 'Cuestionario Forma A', sub: 'Jefes y Profesionales', link: '/formatos/Cuestionario_Forma_A.pdf' },
+              { title: 'Cuestionario Forma B', sub: 'Auxiliares y Operarios', link: '/formatos/Cuestionario_Forma_B.pdf' },
+              { title: 'Ficha de Datos', sub: 'Sociodemográficos y ocupacionales', link: '/formatos/Ficha_Sociodemografica.pdf' },
+              { title: 'Factores Extralaborales', sub: 'Cuestionario Extralaboral', link: '/formatos/Cuestionario_Extralaboral.pdf' },
+              { title: 'Evaluación de Estrés', sub: 'Cuestionario de síntomas', link: '/formatos/Cuestionario_Estres.pdf' }
+            ].map(f => (
+              <a key={f.title} href={f.link} target="_blank" rel="noopener noreferrer" 
+                 style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '1.5rem', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '16px', textDecoration: 'none', transition: 'all 0.2s', textAlign: 'center' }}
+                 className="card-hover">
+                <span style={{ fontSize: '2rem', marginBottom: '0.75rem' }}>📄</span>
+                <span style={{ color: 'white', fontSize: '0.95rem', fontWeight: '600', marginBottom: '0.25rem' }}>{f.title}</span>
+                <span style={{ color: '#94a3b8', fontSize: '0.75rem', marginBottom: '1rem' }}>{f.sub}</span>
+                <span className="badge badge-celeste" style={{ marginTop: 'auto' }}>Descargar ↓</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Legal */}
       <section id="norma" style={{ padding: '4rem 1.5rem', maxWidth: '800px', margin: '0 auto' }}>
         <div className="glass" style={{ padding: '2.5rem', borderRadius: '20px', textAlign: 'center' }}>
@@ -192,8 +221,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '2rem 1.5rem', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <span style={{ fontSize: '1.2rem' }}>🩵</span>
-          <span style={{ color: 'white', fontWeight: '700' }}>PsicoCeleste</span>
+          <img src="/logo.jpg" alt="PsicoLab" style={{ height: '30px', width: 'auto', borderRadius: '4px', filter: 'grayscale(100%) brightness(150%)' }} />
         </div>
         <p style={{ color: '#475569', fontSize: '0.8rem' }}>
           Software especializado para la Batería de Riesgo Psicosocial · Colombia · 2025

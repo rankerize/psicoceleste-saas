@@ -1,16 +1,26 @@
+'use client';
+
 import Link from 'next/link';
+import { useAuth } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
+import { LogOut } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', icon: '🏠', label: 'Dashboard' },
-  { href: '/dashboard/empresas', icon: '🏢', label: 'Empresas' },
-  { href: '/dashboard/empleados', icon: '👥', label: 'Empleados' },
-  { href: '/dashboard/aplicaciones', icon: '📋', label: 'Aplicaciones' },
-  { href: '/dashboard/resultados', icon: '📊', label: 'Resultados' },
-  { href: '/dashboard/suscripcion', icon: '💳', label: 'Facturación' },
+  { href: '/dashboard/empresas', icon: '🏢', label: 'Gestión de Empresas' },
+  { href: '/dashboard/escaner', icon: '📸', label: 'Escáner AI' },
+  { href: '/dashboard/suscripcion', icon: '💳', label: 'Plan y Facturación' },
   { href: '/dashboard/configuracion', icon: '⚙️', label: 'Configuración' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const { user, logOut } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await logOut();
+    router.push('/auth/login');
+  };
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--navy-900)' }}>
       {/* Sidebar */}
@@ -33,12 +43,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           ))}
         </nav>
 
-        {/* User + plan indicator */}
+        {/* User logout */}
         <div style={{ padding: '1rem 0.75rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="glass-celeste" style={{ padding: '0.75rem 1rem', borderRadius: '10px' }}>
-            <div style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: '600', marginBottom: '0.2rem' }}>Plan Pro</div>
-            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Baterías ilimitadas activas</div>
-          </div>
+          <button 
+            onClick={handleLogout}
+            className="sidebar-item" 
+            style={{ width: '100%', border: 'none', background: 'transparent', textAlign: 'left', cursor: 'pointer', color: '#ef4444' }}
+          >
+            <span style={{ fontSize: '16px' }}><LogOut size={16} /></span>
+            <span>Cerrar Sesión</span>
+          </button>
         </div>
       </aside>
 
@@ -60,7 +74,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               background: 'linear-gradient(135deg, #0ea5e9, #7c3aed)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               fontSize: '14px', color: 'white', fontWeight: '600'
-            }}>P</div>
+            }}>
+              {user?.email?.[0].toUpperCase() || 'U'}
+            </div>
           </div>
         </header>
 

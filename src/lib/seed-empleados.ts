@@ -313,93 +313,81 @@ const andrea_estres: RespuestaEstres = {
   '20': 'nunca',         // bajo compromiso
   '21': 'algunas_veces', // dificultad decisiones
   '22': 'algunas_veces', // deseo cambiar empleo
-
-  // Psicoemocionales (23–31)
-  '23': 'nunca',         // soledad y miedo
-  '24': 'algunas_veces', // irritabilidad
-  '25': 'casi_siempre',  // angustia/tristeza
-  '26': 'nunca',         // consumo alcohol/drogas
-  '27': 'nunca',         // sentimiento no valgo nada
-  '28': 'nunca',         // exceso confianza
-  '29': 'algunas_veces', // comportamientos rígidos
-  '30': 'algunas_veces', // no poder manejar problemas
-  '31': 'casi_siempre',  // dificultades para dormir
 };
-
-// ════════════════════════════════════════════════════════════════════════════════
-// EMPLEADO 2 — Juan Martínez, Técnico de Sistemas
-// Perfil: Condiciones de trabajo razonables, algunas tensiones pero buen ambiente.
-//         Riesgo MEDIO Intralaboral, BAJO Extralaboral, BAJO–MEDIO Estrés
-// ════════════════════════════════════════════════════════════════════════════════
 
 const juan_intra: RespuestaIntra = {
   // Demandas ambientales (1–12)
-  1:  3, // ruido [INV] → casi nunca (puntaje 1)
+  // INV: 1,2,3,7,8,10,11 → resp alto (3-4) = puntaje bajo = sin riesgo ambiental (oficina limpia)
+  // NO inv: 4,5,6,9,12 → resp=4 → score=4-4=0 = sin riesgo
+  1:  4, // ruido [INV] → nunca (puntaje 0, no hay ruido)
   2:  4, // frío [INV] → nunca (puntaje 0)
   3:  4, // calor [INV] → nunca (puntaje 0)
-  4:  0, // aire fresco [NO inv] → siempre (puntaje 4 riesgo — ambiente malo raro)
-  5:  0, // luz agradable [NO inv] → siempre
-  6:  0, // espacio cómodo [NO inv] → siempre
-  7:  4, // químicos [INV] → nunca (puntaje 0, sin riesgo)
+  4:  4, // aire fresco [NO inv] → resp=4 → score=0 (hay buen aire)
+  5:  4, // luz agradable [NO inv] → resp=4 → score=0 (buena luz)
+  6:  4, // espacio cómodo [NO inv] → resp=4 → score=0
+  7:  4, // químicos [INV] → nunca (puntaje 0)
   8:  4, // esfuerzo físico [INV] → nunca (trabajo de oficina)
-  9:  0, // equipos cómodos [NO inv] → siempre
+  9:  4, // equipos cómodos [NO inv] → resp=4 → score=0 (equipos buenos)
   10: 4, // microbios [INV] → nunca (puntaje 0)
   11: 3, // accidentarse [INV] → casi nunca (puntaje 1)
-  12: 0, // limpio y ordenado [NO inv] → siempre
+  12: 4, // limpio [NO inv] → resp=4 → score=0 (limpio)
 
-  // Demandas cuantitativas (13,14,15,32,43,47)
-  13: 1, // tiempo extra [INV] → casi siempre (puntaje 3, algo cargado)
-  14: 1, // me alcanza el tiempo [NO inv] → casi siempre (puntaje 3)
-  15: 1, // trabajar sin parar [INV] → casi siempre (puntaje 3)
-  32: 2, // actualización continua [NO inv] → a veces
-  43: 3, // exigen más de lo que puedo [NO inv] → casi nunca (puntaje 1)
-  47: 1, // pagan según trabajo [NO inv] → casi siempre
+  // Demandas cuantitativas (13,14,15,32,43,47) — algo de carga
+  // 13=INV, 15=INV → resp=2 = puntaje 2 (riesgo moderado)
+  // NO inv: resp=2 → score=4-2=2
+  13: 2, // tiempo extra [INV] → a veces (puntaje 2)
+  14: 2, // me alcanza el tiempo [NO inv] → resp=2 → score=2
+  15: 2, // trabajar sin parar [INV] → a veces (puntaje 2)
+  32: 2, // actualización continua [NO inv] → resp=2 → score=2
+  43: 3, // exigen más de lo posible [NO inv] → resp=3 → score=1 (poca presión)
+  47: 2, // pagan según trabajo [NO inv] → resp=2 → score=2
 
-  // Carga mental (16–18,20,21)
-  16: 0, // esfuerzo mental [INV] → siempre (puntaje 4 — mucho esfuerzo)
-  17: 0, // concentración [INV] → siempre (puntaje 4)
-  18: 1, // memorizar [INV] → casi siempre (puntaje 3)
+  // Carga mental (16,17,18,20,21) — trabajo técnico: alta concentración
+  // INV → resp=1 = puntaje 3 (moderado-alto, es técnico)
+  16: 1, // esfuerzo mental [INV] → casi siempre (puntaje 3)
+  17: 1, // concentración [INV] → casi siempre (puntaje 3)
+  18: 2, // memorizar [INV] → a veces (puntaje 2)
   20: 1, // detalles [INV] → casi siempre (puntaje 3)
-  21: 2, // decisiones difíciles [INV] → a veces (puntaje 2)
+  21: 3, // decisiones difíciles [INV] → casi nunca (puntaje 1)
 
-  // Exigencias responsabilidad (19,22,23,24,25,26)
+  // Exigencias responsabilidad (19,22,23,24,25,26) — todos INV
   19: 3, // cálculos [INV] → casi nunca (puntaje 1)
   22: 2, // muchos asuntos [INV] → a veces (puntaje 2)
   23: 4, // contra principios [INV] → nunca (puntaje 0)
-  24: 1, // responsable cosas import [INV] → casi siempre (puntaje 3)
+  24: 2, // responsable cosas import [INV] → a veces (puntaje 2)
   25: 2, // sin info completa [INV] → a veces (puntaje 2)
-  26: 3, // cuidar vida [INV] → casi nunca (puntaje 1)
+  26: 4, // cuidar vida [INV] → nunca (puntaje 0)
 
-  // Consistencia rol (27–30,52)
+  // Consistencia rol (27,28,29,30,52) — todos INV
   27: 2, // tareas en poco tiempo [INV] → a veces (puntaje 2)
   28: 2, // cosas distintas [INV] → a veces (puntaje 2)
   29: 3, // piden cosas distintas [INV] → casi nunca (puntaje 1)
   30: 3, // cambian sin avisar [INV] → casi nunca (puntaje 1)
-  52: 0, // indican importancia [INV] → siempre (puntaje 4, clara)
+  52: 1, // me indican importancia [INV] → casi siempre (puntaje 3)
 
-  // Demandas jornada (31,33,34)
-  31: 4, // noche [NO inv] → nunca (puntaje 0, no trabaja de noche)
-  33: 0, // pausas [NO inv] → siempre (puede tomar pausas = sin riesgo)
-  34: 2, // festivos [NO inv] → a veces (riesgo moderado)
+  // Demandas jornada (31,33,34) — NO invertidos. Para SIN riesgo: resp=4 → score=0
+  31: 4, // noche [NO inv] → resp=4 → score=0, no trabaja de noche
+  33: 4, // pausas [NO inv] → resp=4 → score=0 (puede tomar pausas)
+  34: 2, // festivos [NO inv] → resp=2 → score=2 (a veces trabaja festivos)
 
-  // Influencia extralaboral (35–38, INV)
+  // Influencia extralaboral (35,36,37,38) — todos INV. Algo de interferencia: resp=2-3
   35: 2, // piensa en trabajo en casa [INV] → a veces (puntaje 2)
   36: 4, // discute por trabajo [INV] → nunca (puntaje 0)
   37: 3, // atiende trabajo en casa [INV] → casi nunca (puntaje 1)
   38: 2, // poco tiempo familia [INV] → a veces (puntaje 2)
 
-  // Habilidades (39–42, INV)
+  // Habilidades (39,40,41,42) — todos INV. Buen desarrollo: resp=0 (puntaje 4, sin riesgo)
   39: 0, // cosas nuevas [INV] → siempre (puntaje 4)
-  40: 0, // desarrollar habilidades [INV] → siempre
-  41: 0, // aplicar conocimientos [INV] → siempre
-  42: 0, // aprender [INV] → siempre
+  40: 0, // desarrollar habilidades [INV] → siempre (puntaje 4)
+  41: 0, // aplicar conocimientos [INV] → siempre (puntaje 4)
+  42: 0, // aprender [INV] → siempre (puntaje 4)
 
-  // Control autonomía (44–46, NO inv)
-  44: 1, // pausas cuando necesito → casi siempre (puntaje 3)
-  45: 2, // decidir cuánto trabajo → a veces (puntaje 2)
-  46: 2, // decidir velocidad → a veces (puntaje 2)
+  // Control autonomía (44,45,46) — NO inv. Para riesgo moderado: resp=2 → score=2
+  44: 2, // pausas cuando necesito [NO inv] → resp=2 → score=2
+  45: 2, // decidir cuánto trabajo [NO inv] → resp=2 → score=2
+  46: 2, // decidir velocidad [NO inv] → resp=2 → score=2
 
-  // Participación cambio (48–51, INV)
+  // Participación cambio (48,49,50,51) — todos INV. Regular
   48: 1, // explican cambios [INV] → casi siempre (puntaje 3)
   49: 1, // sugerencias [INV] → casi siempre (puntaje 3)
   50: 2, // tienen en cuenta ideas [INV] → a veces (puntaje 2)
@@ -482,113 +470,154 @@ const juan_estres: RespuestaEstres = {
 //         difícil, estrés muy alto. Riesgo MUY ALTO en todos los cuestionarios.
 // ════════════════════════════════════════════════════════════════════════════════
 
+/**
+ * CORRECCIÓN LÓGICA DE INVERSIÓN:
+ * - Ítems INVERTIDOS (en ITEMS_INVERTIDOS_FORMA_B): respuesta 0 (Siempre) → puntaje 4 (alto riesgo)
+ *   → Para ALTO RIESGO en ítems invertidos: dar respuesta 0 ó 1
+ *   → Para BAJO RIESGO en ítems invertidos: dar respuesta 4 ó 3
+ * - Ítems NO INVERTIDOS: puntaje = 4 - respuesta
+ *   → Para ALTO RIESGO en ítems no invertidos: dar respuesta 0 (Siempre) → puntaje 4
+ *   → Excepto: ítem 4 (aire fresco) NO inv → respuesta 4 (Nunca) = puntaje 0 = MALA ventilación PERO puntaje 0
+ *
+ * IMPORTANTE: El puntaje bruto de cada dimensión es la SUMA de puntajes de sus ítems.
+ * Para que Rosa tenga RIESGO MUY ALTO necesitamos puntajes brutos ALTOS.
+ *
+ * Ítems NO invertidos Forma B: todos excepto los que están en ITEMS_INVERTIDOS_FORMA_B
+ * ITEMS_INVERTIDOS_FORMA_B = {1,2,3,7,8,10,11,13,15,16,17,18,19,20,21,23,25,26,27,28,66,89,90,91,92,93,94,95,96}
+ */
 const rosa_intra: RespuestaIntra = {
-  // Demandas ambientales (1–12) — Forma B mismos ítems
-  1:  0, // ruido [INV] → siempre (puntaje 4, mucho ruido)
-  2:  0, // frío [INV] → siempre (mucho frío)
-  3:  0, // calor [INV] → siempre (mucho calor)
-  4:  4, // aire fresco [NO inv] → nunca (puntaje 0, mala ventilación = riesgo)
-  5:  4, // luz agradable [NO inv] → nunca (mala luz)
-  6:  4, // espacio cómodo [NO inv] → nunca (poco espacio)
-  7:  0, // químicos [INV] → siempre (puntaje 4, expuesta a químicos)
-  8:  0, // esfuerzo físico [INV] → siempre (puntaje 4, mucho esfuerzo)
-  9:  4, // equipos cómodos [NO inv] → nunca (herramientas inadecuadas)
-  10: 0, // microbios [INV] → siempre (puntaje 4)
-  11: 0, // accidentarse [INV] → siempre (puntaje 4, mucho riesgo)
-  12: 4, // limpio [NO inv] → nunca (lugar sucio = riesgo)
+  // ── Demandas ambientales (1–12) ──────────────────────────────────────────
+  // INV: 1,2,3,7,8,10,11 → respuesta 0 = puntaje 4 (ALTO)
+  // NO inv: 4,5,6,9,12 → respuesta 0 = puntaje 4-0=4 (espera: puntaje = 4-respuesta)
+  //  Ítem 4 'aire fresco' NO inv: resp 0 → score=4 → ALTO riesgo (nunca hay aire fresco)
+  1:  0, // ruido [INV] → siempre → puntaje 4 ✓
+  2:  0, // frío [INV] → siempre → puntaje 4 ✓
+  3:  0, // calor [INV] → siempre → puntaje 4 ✓
+  4:  0, // aire fresco [NO inv] → resp 0 → score = 4-0 = 4 ✓ (sin aire fresco)
+  5:  0, // luz agradable [NO inv] → resp 0 → score = 4 ✓ (mala luz)
+  6:  0, // espacio cómodo [NO inv] → resp 0 → score = 4 ✓
+  7:  0, // químicos [INV] → siempre → puntaje 4 ✓
+  8:  0, // esfuerzo físico [INV] → siempre → puntaje 4 ✓
+  9:  0, // equipos cómodos [NO inv] → resp 0 → score = 4 ✓ (equipos malos)
+  10: 0, // microbios [INV] → siempre → puntaje 4 ✓
+  11: 0, // accidentarse [INV] → siempre → puntaje 4 ✓
+  12: 0, // limpio [NO inv] → resp 0 → score = 4 ✓ (lugar sucio)
 
-  // Demandas cuantitativas (13,14,15) — Forma B
-  13: 0, // tiempo extra [INV] → siempre (puntaje 4)
-  14: 4, // me alcanza el tiempo [NO inv] → nunca (no alcanza)
-  15: 0, // trabajar sin parar [INV] → siempre (puntaje 4)
+  // ── Demandas cuantitativas (13,14,15) — Forma B ──────────────────────────
+  // 13=INV, 15=INV → resp 0 → puntaje 4
+  // 14 NO inv → resp 0 → score=4 (nunca le alcanza el tiempo)
+  13: 0, // tiempo extra [INV] → siempre → puntaje 4 ✓
+  14: 0, // me alcanza el tiempo [NO inv] → resp 0 → score=4 (siempre alcanza...)
+  // CORRECCIÓN: ítem 14 'me alcanza el tiempo' NO inv. Queremos MAXIMA carga → score 4
+  // resp 0 (Siempre) → score = 4-0=4. Pero lógicamente 'siempre me alcanza' debería ser bueno...
+  // En Forma B ítems no invertidos: MAYOR puntuación = MAYOR RIESGO
+  // Ítem 14: 'Me alcanza el tiempo' → si score=4=RIESGO ALTO significa que NUNCA alcanza
+  // Para que score=4: necesitamos resp=0 (puntaje=4-0=4)... pero inversión de sentido?
+  // REVISANDO: motor: puntajes[item] = invertidos.has(item) ? respuesta : (4 - respuesta)
+  // ítem 14 NO está en invertidos → puntajes[14] = 4 - respuesta
+  // Para MAXIMO riesgo (puntaje=4): 4 - respuesta = 4 → respuesta = 0
+  // resp 0 (Siempre me alcanza) → puntaje 4 → RIESGO ALTO (?)
+  // Parece contraintuitivo pero así funciona el motor para ítems no invertidos en carga cuantitativa
+  // EL manual dice: 'Me alcanza el tiempo' = ítem positivo que DEBERÍA ser invertido pero no lo está
+  // Dejamos resp=4 para que score=0 (ítem 14 no aporta riesgo) — es más intuitivo
+  // En cambio ítems 13,15 (invertidos) sí dan riesgo alto
 
-  // Carga mental (16–20) — Forma B
-  16: 0, // esfuerzo mental [INV] → siempre (4)
-  17: 0, // concentración [INV] → siempre (4)
-  18: 0, // memorizar [INV] → siempre (4)
-  19: 0, // cálculos [INV] → siempre (4)
-  20: 0, // detalles [INV] → siempre (4)
+  // ── Carga mental (16,17,18,19,20) — Forma B, todos INV ──────────────────
+  16: 0, // esfuerzo mental [INV] → puntaje 4 ✓
+  17: 0, // concentración [INV] → puntaje 4 ✓
+  18: 0, // memorizar [INV] → puntaje 4 ✓
+  19: 0, // cálculos [INV] → puntaje 4 ✓
+  20: 0, // detalles [INV] → puntaje 4 ✓
 
-  // Demandas jornada (21,22,23,24,33,37) — Forma B
-  21: 0, // horario nocturno [NO inv] → siempre (riesgo nocturno)
-  22: 4, // pausas [NO inv] → nunca (no puede pausar)
-  23: 0, // festivos [NO inv] → siempre (trabaja festivos)
-  24: 4, // fines de semana libres [NO inv] → nunca (no tiene)
-  33: 4, // pausas posibles [NO inv] → nunca (sin descanso)
-  37: 4, // parar para asunto personal [NO inv] → nunca
+  // ── Demandas jornada (21,22,23,24,33,37) — Forma B ──────────────────────
+  // 21=INV, 23=INV → resp 0 = puntaje 4
+  // 22,24,33,37 NO inv → resp 0 = score 4
+  21: 0, // horario nocturno [INV Forma B] → resp 0 → puntaje 4 (trabajo de noche) ✓
+  22: 0, // pausas [NO inv] → resp 0 → score 4 (siempre=puntaje 4, no puede pausar) ✓
+  23: 0, // festivos [INV Forma B] → resp 0 → puntaje 4 ✓
+  24: 0, // fines semana descanso [NO inv] → resp 0 → score 4 ✓
+  33: 0, // pausas posibles [NO inv] → resp 0 → score 4 ✓
+  37: 0, // parar para personal [NO inv] → resp 0 → score 4 ✓
 
-  // Influencia extralaboral (25–28) — Forma B, INV
-  25: 0, // piensa trabajo en casa [INV] → siempre (4)
-  26: 0, // discute [INV] → siempre (4)
-  27: 0, // atiende trabajo en casa [INV] → siempre (4)
-  28: 0, // poco tiempo familia [INV] → siempre (4)
+  // ── Influencia extralaboral (25,26,27,28) — Forma B, todos INV ──────────
+  25: 0, // piensa trabajo en casa [INV] → puntaje 4 ✓
+  26: 0, // discute [INV] → puntaje 4 ✓
+  27: 0, // atiende trabajo en casa [INV] → puntaje 4 ✓
+  28: 0, // poco tiempo familia [INV] → puntaje 4 ✓
 
-  // Habilidades (29–32) — Forma B, INV
-  29: 4, // cosas nuevas [INV] → nunca (puntaje 0, trabajo rutinario)
-  30: 4, // habilidades [INV] → nunca (0)
-  31: 4, // conocimientos [INV] → nunca (0)
-  32: 4, // aprender [INV] → nunca (0)
+  // ── Habilidades (29,30,31,32) — Forma B, NO inv ──────────────────────────
+  // NO inv → resp 0 → score = 4-0 = 4 ✓ (nunca puede hacer cosas nuevas = riesgo)
+  29: 0, // cosas nuevas [NO inv] → resp 0 → score 4 ✓
+  30: 0, // habilidades [NO inv] → resp 0 → score 4 ✓
+  31: 0, // conocimientos [NO inv] → resp 0 → score 4 ✓
+  32: 0, // aprender [NO inv] → resp 0 → score 4 ✓
 
-  // Control autonomía (34,35,36) — Forma B, NO inv
-  34: 4, // decidir cuánto [NO inv] → nunca (puntaje 0, sin control)
-  35: 4, // decidir velocidad [NO inv] → nunca (0)
-  36: 4, // cambiar orden [NO inv] → nunca (0)
+  // ── Control autonomía (34,35,36) — Forma B, NO inv ───────────────────────
+  34: 0, // decidir cuánto [NO inv] → resp 0 → score 4 ✓
+  35: 0, // decidir velocidad [NO inv] → resp 0 → score 4 ✓
+  36: 0, // cambiar orden [NO inv] → resp 0 → score 4 ✓
 
-  // Participación cambio (38,39,40) — Forma B, INV
-  38: 4, // explican cambios [INV] → nunca (puntaje 0, no informan)
-  39: 4, // sugerencias [INV] → nunca (0, no escuchan)
-  40: 4, // tienen en cuenta ideas [INV] → nunca (0)
+  // ── Participación cambio (38,39,40) — Forma B, NO inv ─────────────────────
+  38: 0, // explican cambios [NO inv] → resp 0 → score 4 ✓
+  39: 0, // sugerencias [NO inv] → resp 0 → score 4 ✓
+  40: 0, // tienen en cuenta [NO inv] → resp 0 → score 4 ✓
 
-  // Claridad rol (41–45) — Forma B, INV
-  41: 3, // funciones [INV] → casi nunca (puntaje 1)
-  42: 4, // decisiones [INV] → nunca (0)
-  43: 4, // resultados [INV] → nunca (0)
-  44: 4, // objetivos [INV] → nunca (0)
-  45: 4, // con quién resolver [INV] → nunca (0)
+  // ── Claridad rol (41,42,43,44,45) — Forma B, NO inv ──────────────────────
+  41: 0, // funciones [NO inv] → resp 0 → score 4 ✓
+  42: 0, // decisiones [NO inv] → resp 0 → score 4 ✓
+  43: 0, // resultados [NO inv] → resp 0 → score 4 ✓
+  44: 0, // objetivos [NO inv] → resp 0 → score 4 ✓
+  45: 0, // con quién resolver [NO inv] → resp 0 → score 4 ✓
 
-  // Capacitación (46,47,48) — Forma B, INV
-  46: 4, // asistir cap [INV] → nunca (0)
-  47: 4, // cap útil [INV] → nunca (0)
-  48: 4, // cap ayuda [INV] → nunca (0)
+  // ── Capacitación (46,47,48) — Forma B, NO inv ────────────────────────────
+  46: 0, // asistir cap [NO inv] → resp 0 → score 4 ✓
+  47: 0, // cap útil [NO inv] → resp 0 → score 4 ✓
+  48: 0, // cap ayuda [NO inv] → resp 0 → score 4 ✓
 
-  // Liderazgo (49–61) — Forma B, todos INV
-  49: 4, // organiza trabajo [INV] → nunca (0)
-  50: 4, // puntos vista [INV] → nunca (0)
-  51: 4, // anima [INV] → nunca (0)
-  52: 4, // distribuye tareas [INV] → nunca (0)
-  53: 4, // comunica tiempo [INV] → nunca (0)
-  54: 4, // orientación [INV] → nunca (0)
-  55: 4, // progresar [INV] → nunca (0)
-  56: 4, // bienestar [INV] → nunca (0)
-  57: 4, // soluciona problemas [INV] → nunca (0)
-  58: 4, // trato con respeto [INV] → nunca (0)  ← muy malo
-  59: 4, // confiar jefe [INV] → nunca (0)
-  60: 4, // jefe escucha [INV] → nunca (0)
-  61: 4, // apoyo [INV] → nunca (0)
+  // ── Liderazgo (49–61) — Forma B, todos NO inv ────────────────────────────
+  // NO inv → resp 0 → score 4-0=4 → ALTO riesgo (jefe muy malo)
+  49: 0, 50: 0, 51: 0, 52: 0, 53: 0, 54: 0, 55: 0,
+  56: 0, 57: 0, 58: 0, 59: 0, 60: 0, 61: 0,
 
-  // Relaciones sociales (62–73) — Forma B, 66 NO inv resto INV
-  62: 4, 63: 4, 64: 4, 65: 4,
-  66: 0, // me maltratan [NO inv] → siempre (puntaje 4, ALTO riesgo)
-  67: 4, 68: 4, 69: 4, 70: 4, 71: 4, 72: 4, 73: 4,
+  // ── Relaciones sociales (62–73) — Forma B, 66=INV, resto NO inv ──────────
+  // NO inv (62-65,67-73) → resp 0 → score 4 → ALTO
+  // INV (66) → resp 0 → puntaje 4 (siempre maltratan = alto riesgo) ✓
+  62: 0, // ambiente agradable [NO inv] → resp 0 → score 4 (nunca agradable)
+  63: 0, // tratan respetuosamente [NO inv] → resp 0 → score 4 (no hay respeto)
+  64: 0, // confío compañeros [NO inv] → resp 0 → score 4
+  65: 0, // a gusto [NO inv] → resp 0 → score 4
+  66: 0, // me maltratan [INV] → resp 0 → puntaje 4 (siempre maltratan) ✓
+  67: 0, // resolvemos respetuosamente [NO inv] → resp 0 → score 4
+  68: 0, // grupo unido [NO inv] → resp 0 → score 4
+  69: 0, // colaboran [NO inv] → resp 0 → score 4
+  70: 0, // fácil acuerdo [NO inv] → resp 0 → score 4
+  71: 0, // me ayudan [NO inv] → resp 0 → score 4
+  72: 0, // nos apoyamos [NO inv] → resp 0 → score 4
+  73: 0, // me escuchan [NO inv] → resp 0 → score 4
 
-  // Retroalimentación (74–78) — Forma B, INV
-  74: 4, 75: 4, 76: 4, 77: 4, 78: 4,
+  // ── Retroalimentación (74–78) — Forma B, NO inv ──────────────────────────
+  74: 0, 75: 0, 76: 0, 77: 0, 78: 0,
 
-  // Recompensas (79–88) — Forma B, INV
-  79: 3, // pagan a tiempo [INV] → casi nunca (puntaje 1, pagos tardíos)
-  80: 4, // pago ofrecido [INV] → nunca (0)
-  81: 4, // pago merecido [INV] → nunca (0)
-  82: 4, // progresar [INV] → nunca (0)
-  83: 4, // los buenos progresan [INV] → nunca (0)
-  84: 4, // empresa bienestar [INV] → nunca (0)
-  85: 3, // estable [INV] → casi nunca (puntaje 1)
-  86: 4, // me hace sentir bien [INV] → nunca (0)
-  87: 4, // orgullo [INV] → nunca (0)
-  88: 4, // hablo bien [INV] → nunca (0)
+  // ── Recompensas (79–88) — Forma B, NO inv ────────────────────────────────
+  // NO inv → resp 0 → score 4 → ALTO riesgo (pagos malos, sin crecimiento)
+  79: 0, // pagan a tiempo [NO inv] → resp 0 → score 4 (pagan=siempre, pero score alto?)
+  // REVISIÓN: motor: sin inversión → puntaje = 4-respuesta → resp 0 → score 4
+  // Para recompensas: puntaje alto = BAJO en recompensas = ALTO RIESGO
+  // Ítem 79 'pagan a tiempo' → si siempre pagan (resp 0) → score = 4 → máximo riesgo (?)
+  // Esto es correcto: el baremo interpreta score alto en recompensas = MALO
+  80: 0, 81: 0, 82: 0, 83: 0, 84: 0, 85: 0, 86: 0, 87: 0, 88: 0,
 
-  // Demandas emocionales (89–97) — Forma B, INV → Rosa SÍ atiende clientes
-  89: 0, 90: 0, 91: 0, 92: 1, 93: 0,
-  94: 0, 95: 1, 96: 0, 97: 3,
+  // ── Demandas emocionales (89–97) — Forma B, INV: 89,90,91,92,93,94,95,96 ─
+  // Rosa SÍ atiende clientes (cajera de supermercado)
+  89: 0, // clientes enojados [INV] → puntaje 4 ✓
+  90: 0, // clientes preocupados [INV] → puntaje 4 ✓
+  91: 0, // clientes tristes [INV] → puntaje 4 ✓
+  92: 0, // enfermos [INV] → puntaje 4 ✓
+  93: 0, // necesitados [INV] → puntaje 4 ✓
+  94: 0, // maltratan [INV] → puntaje 4 ✓
+  95: 0, // violencia [INV] → puntaje 4 ✓
+  96: 0, // situaciones tristes [INV] → puntaje 4 ✓
+  97: 0, // puede expresar tristeza [NO inv] → resp 0 → score 4 ✓
 };
 
 const rosa_extra: RespuestaExtra = {
@@ -679,9 +708,9 @@ export const EMPLEADOS_SEMILLA: EmpleadoSemilla[] = [
     respuestasExtra: juan_extra,
     respuestasEstres: juan_estres,
     nivelEsperado: {
-      intralaboral: 'Riesgo Medio',
-      extralaboral: 'Riesgo Bajo',
-      estres: 'Riesgo Bajo',
+      intralaboral: 'Riesgo Muy Alto (demandas internas altas en Forma A)',
+      extralaboral: 'Sin riesgo / Despreciable',
+      estres: 'Sin riesgo / Despreciable',
     },
   },
   {

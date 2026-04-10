@@ -1,7 +1,6 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signUpWithEmail, signInWithGoogle } from '@/lib/auth';
@@ -12,7 +11,7 @@ const PLANES = {
   free: { nombre: 'Prueba gratuita', precio: '3 baterías gratis', color: '#059669' },
 };
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planParam = (searchParams.get('plan') as keyof typeof PLANES) || 'free';
@@ -188,5 +187,13 @@ export default function RegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#0a0f1e' }}><div className="spinner" /></div>}>
+      <RegisterForm />
+    </Suspense>
   );
 }

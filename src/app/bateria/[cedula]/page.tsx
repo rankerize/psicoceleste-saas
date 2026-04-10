@@ -1,7 +1,6 @@
 'use client';
-export const dynamic = 'force-dynamic';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   ChevronRight, ChevronLeft, CheckCircle2, AlertCircle,
@@ -95,7 +94,7 @@ function PreguntaLikert({
 
 // ─── Componente principal ─────────────────────────────────────────────────────
 
-export default function BateriaPage() {
+function BateriaContent() {
   const params = useParams();
   const searchParams = useSearchParams();
   const cedula = params.cedula as string;
@@ -617,4 +616,12 @@ export default function BateriaPage() {
   }
 
   return null;
+}
+
+export default function BateriaPage() {
+  return (
+    <Suspense fallback={<div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: 'var(--navy-900)' }}><div className="spinner" /></div>}>
+      <BateriaContent />
+    </Suspense>
+  );
 }

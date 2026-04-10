@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import {
-  ChevronLeft, AlertCircle, Loader2, RefreshCw, User,
-  Building2, ClipboardList, TrendingUp, Activity, Brain, Home
+  ChevronLeft, AlertCircle, Loader2, RefreshCw,
+  ClipboardList, TrendingUp, Activity, Brain, Home, FileDown
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import {
@@ -139,11 +139,35 @@ export default function ResultadoEmpleadoPage() {
   const params = useParams();
   const empleadoId = params.empleadoId as string;
 
-  const [resultado, setResultado] = useState<Record<string, unknown> | null>(null);
-  const [empleado, setEmpleado]   = useState<Record<string, unknown> | null>(null);
-  const [loading, setLoading]     = useState(true);
+  const [resultado, setResultado]     = useState<Record<string, unknown> | null>(null);
+  const [empleado, setEmpleado]       = useState<Record<string, unknown> | null>(null);
+  const [loading, setLoading]         = useState(true);
   const [calificando, setCalificando] = useState(false);
-  const [error, setError]         = useState('');
+  const [descargando, setDescargando] = useState(false);
+  const [error, setError]             = useState('');
+
+  const descargarPDF = async () => {
+    setDescargando(true);
+    setError('');
+    try {
+      const res = await fetch(`/api/reporte-pdf?empleadoId=${empleadoId}`);
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? 'Error generando PDF');
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `perfil-riesgo-${(empleado as Record<string,unknown>)?.nombre?.toString()?.replace(/\s+/g, '-') ?? empleadoId}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e: unknown) {
+      setError((e as Error).message ?? 'Error descargando PDF');
+    } finally {
+      setDescargando(false);
+    }
+  };
 
   const cargar = useCallback(async () => {
     setLoading(true);
@@ -257,6 +281,22 @@ export default function ResultadoEmpleadoPage() {
                     }
                   </button>
                 )}
+
+                {/* Botón descargar PDF — visible solo cuando hay resultado calificado */}
+                {cal && (
+                  <button
+                    id="btn-descargar-pdf"
+                    onClick={descargarPDF}
+                    disabled={descargando}
+                    className="btn-primary flex items-center gap-2 text-sm bg-emerald-600 hover:bg-emerald-500 shadow-emerald-500/20"
+                  >
+                    {descargando
+                      ? <><Loader2 size={15} className="animate-spin" /> Generando PDF...</>
+                      : <><FileDown size={15} /> Descargar PDF</>
+                    }
+                  </button>
+                )}
+
                 <button
                   onClick={cargar}
                   className="btn-secondary flex items-center gap-1 text-sm"

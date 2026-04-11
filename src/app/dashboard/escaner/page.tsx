@@ -217,7 +217,7 @@ export default function EscanerAIPage() {
       <div className="grid md:grid-cols-2 gap-8">
         {/* Zona de Carga */}
         <div className="space-y-6">
-          {!photo ? (
+          {photos.length === 0 ? (
             <div 
               onDragOver={e => e.preventDefault()}
               onDrop={handleDrop}
@@ -227,23 +227,38 @@ export default function EscanerAIPage() {
               <input 
                 type="file" 
                 accept="image/*" 
+                multiple
                 className="hidden" 
                 ref={fileInputRef}
-                onChange={e => e.target.files && handleFile(e.target.files[0])}
+                onChange={e => handleFiles(e.target.files)}
                 capture="environment" // Habilita la cámara en tablets/celulares directamente
               />
               <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-purple-400">
                 <Camera size={28} />
               </div>
-              <h3 className="text-white font-bold mb-2">Toma una foto o sube un archivo</h3>
+              <h3 className="text-white font-bold mb-2">Toma fotos o sube archivos</h3>
               <p className="text-slate-400 text-sm text-center">Formato JPG o PNG</p>
             </div>
           ) : (
-            <div className="glass-card p-4 rounded-2xl border-purple-500/30 flex flex-col items-center">
-              {previewUrl && (
-                 <img src={previewUrl} alt="Escaneo" className="max-h-[300px] object-contain rounded-xl mb-6 shadow-lg shadow-black/50" />
-              )}
+            <div className="glass-card p-4 rounded-2xl border-purple-500/30 flex flex-col items-center max-h-[500px] overflow-y-auto">
+              <div className="flex flex-wrap gap-4 justify-center mb-6">
+                {previewUrls.map((url, i) => (
+                   <img key={url} src={url} alt={`Escaneo ${i+1}`} className="max-h-[150px] object-contain rounded-xl shadow-lg shadow-black/50 border border-slate-700" />
+                ))}
+              </div>
               
+              {/* Optional: un botón extra por si quieren sumar otra página sin descartar */}
+              <button 
+                onClick={() => fileInputRef.current?.click()}
+                className="btn-secondary text-sm mb-6 flex items-center gap-2 border-white/10 hover:bg-white/5"
+              >
+                <Camera size={14} /> Añadir otra página
+              </button>
+              <input 
+                type="file" accept="image/*" multiple className="hidden" ref={fileInputRef}
+                onChange={e => handleFiles(e.target.files)} capture="environment" 
+              />
+
               {error && (
                 <div className="w-full bg-red-500/10 border border-red-500/20 text-red-200 p-4 rounded-xl mb-4 flex items-center gap-3 text-sm">
                   <AlertCircle size={20} className="shrink-0" />

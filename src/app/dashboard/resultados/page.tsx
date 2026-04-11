@@ -5,8 +5,9 @@ import { useSearchParams } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { collection, query, getDocs, doc, getDoc, where, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '@/lib/auth';
-import { Loader2, Download, Bot, Target, Users, LayoutDashboard, BrainCircuit, Calendar, Database, FileText, Camera, FileUp } from 'lucide-react';
+import { Loader2, Download, Bot, Target, Users, LayoutDashboard, BrainCircuit, Calendar, Database, FileText, Camera, FileUp, Sparkles, CheckCircle2 } from 'lucide-react';
 import { generarReporteWord } from '@/lib/docx/reporte-empresa';
+import { ReportPreview } from '@/components/ReportPreview';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
@@ -41,6 +42,10 @@ function ResultadosContent() {
   const [loadingAi, setLoadingAi] = useState(false);
   const [simulating, setSimulating] = useState(false);
   const [generandoDoc, setGenerandoDoc] = useState(false);
+  
+  // Modal Previsualizador AI PDF
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewData, setPreviewData] = useState<{empId: string, resId: string} | null>(null);
 
   // Datos para gráficas
   const [chartDataArea, setChartDataArea] = useState<any[]>([]);
@@ -555,15 +560,24 @@ function ResultadosContent() {
                                            </td>
                                            <td className="py-3 px-5 text-center">
                                                {res.calificacion ? (
-                                                  <a 
-                                                    href={`/api/reporte-pdf?empleadoId=${emp.id}&resultadoId=${res.id}`}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="inline-flex items-center justify-center p-2 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white transition-colors border border-sky-500/20"
-                                                    title="Descargar Reporte PDF Clínico"
-                                                  >
-                                                      <FileText size={16} />
-                                                  </a>
+                                                  <div className="flex items-center justify-center gap-2">
+                                                     <button
+                                                       onClick={() => { setPreviewData({empId: emp.id, resId: res.id}); setPreviewOpen(true); }}
+                                                       className="inline-flex items-center justify-center p-2 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500 hover:text-white transition-colors border border-purple-500/20 shadow-md shadow-purple-500/10 hover:scale-105"
+                                                       title="✨ Previsualizar e Imprimir Reporte IA (Beta)"
+                                                     >
+                                                         <Sparkles size={16} />
+                                                     </button>
+                                                     <a 
+                                                       href={`/api/reporte-pdf?empleadoId=${emp.id}&resultadoId=${res.id}`}
+                                                       target="_blank"
+                                                       rel="noreferrer"
+                                                       className="inline-flex items-center justify-center p-2 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white transition-colors border border-sky-500/20 hover:scale-105"
+                                                       title="Descargar Reporte PDF Clínico (Servidor)"
+                                                     >
+                                                         <FileText size={16} />
+                                                     </a>
+                                                  </div>
                                                ) : (
                                                   <span className="text-xs text-slate-300">N/A</span>
                                                )}
@@ -584,6 +598,15 @@ function ResultadosContent() {
             <p>Selecciona una empresa en el filtro superior para interactuar.</p>
          </div>
       )}
+
+      {/* AI HTML Previsualizador */}
+      <ReportPreview 
+          isOpen={previewOpen} 
+          onClose={() => setPreviewOpen(false)} 
+          empleadoId={previewData?.empId || ''} 
+          resultadoId={previewData?.resId || ''} 
+      />
+
     </div>
   );
 }

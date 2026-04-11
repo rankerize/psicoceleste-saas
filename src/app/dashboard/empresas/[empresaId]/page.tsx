@@ -275,27 +275,28 @@ export default function EmpleadosPage() {
       </div>
 
       {/* Header */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <Users className="text-sky-400" size={28} />
+          <h1 className="text-3xl font-black text-white flex items-center gap-3">
+            <Users className="text-sky-400" size={32} />
             Empleados
           </h1>
           {empresa && (
-            <p className="text-slate-400 mt-1 flex items-center gap-1">
-              <Building2 size={14} /> {empresa.nombre} — NIT {empresa.nit}
+            <p className="text-slate-400 mt-2 flex items-center gap-2 font-medium">
+              <Building2 size={16} className="text-slate-500" /> {empresa.nombre} 
+              <span className="text-slate-600">|</span> NIT {empresa.nit}
             </p>
           )}
         </div>
-        <div className="flex flex-wrap items-center gap-3 self-start">
+        <div className="flex flex-wrap items-center gap-4 self-start">
           
           {/* Botón Resultados */}
           <Link
             href={`/dashboard/empresas/${empresaId}/resultados`}
-            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white rounded-xl transition-all shadow-lg shadow-purple-500/20 font-bold"
+            className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400 rounded-xl transition-all border border-indigo-500/20 font-bold"
             title="Ver las métricas y reportes AI para esta empresa"
           >
-            <Activity size={18} /> Analíticas e Informes
+            <Activity size={18} /> Metricas e Informes
           </Link>
 
           <div className="w-px h-6 bg-slate-700 hidden sm:block mx-1"></div>
@@ -423,26 +424,27 @@ export default function EmpleadosPage() {
                   const estado = ESTADO_LABELS[emp.estadoBateria] ?? ESTADO_LABELS.pendiente;
                   return (
                     <tr key={emp.id} className="hover:bg-white/2 transition-colors group">
-                      <td className="px-4 py-3 text-xs text-slate-500 font-medium">{idx + 1}</td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center shrink-0 text-sky-400 text-xs font-bold">
+                      <td className="px-4 py-4 text-xs text-slate-500 font-bold">{idx + 1}</td>
+                      <td className="px-4 py-4">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0 text-sky-400 text-sm font-black border border-sky-500/20">
                             {emp.nombre.charAt(0)}
                           </div>
-                          <div>
-                            <div className="text-white font-medium text-sm">{emp.nombre}</div>
-                            {emp.email && <div className="text-slate-500 text-xs">{emp.email}</div>}
+                          <div className="min-w-0">
+                            <div className="text-white font-bold text-sm truncate max-w-[140px] md:max-w-[200px]" title={emp.nombre}>{emp.nombre}</div>
+                            {emp.email && <div className="text-slate-500 text-xs truncate max-w-[140px] md:max-w-[200px]" title={emp.email}>{emp.email}</div>}
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-slate-400 hidden md:table-cell">
-                        <div className="flex items-center gap-1">
-                          <Hash size={12} className="text-slate-600" /> {emp.cedula}
+                      <td className="px-4 py-4 text-slate-400 hidden md:table-cell">
+                        <div className="flex items-center gap-2 font-medium">
+                          <Hash size={14} className="text-slate-600 border border-slate-700/50 rounded-md p-0.5" /> 
+                          <span className="truncate max-w-[120px]" title={emp.cedula}>{emp.cedula}</span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 hidden lg:table-cell">
-                        <div className="text-white text-xs">{emp.cargo}</div>
-                        <div className="text-slate-500 text-xs">{emp.area}</div>
+                      <td className="px-4 py-4 hidden lg:table-cell">
+                        <div className="text-white text-xs font-bold truncate max-w-[160px]" title={emp.cargo}>{emp.cargo}</div>
+                        <div className="text-slate-500 text-xs truncate max-w-[160px]" title={emp.area}>{emp.area}</div>
                       </td>
                       <td className="px-4 py-3">
                         <span className={`text-xs px-2 py-1 rounded-lg font-semibold ${

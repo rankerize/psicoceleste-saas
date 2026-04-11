@@ -117,50 +117,52 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats principales */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-12">
         {[
           {
-            label: 'Empresas', val: stats?.empresas ?? 0,
-            icon: <Building2 size={20} />, color: 'text-sky-400', bg: 'from-sky-500/10',
+            label: 'Total Empresas', val: stats?.empresas ?? 0,
+            icon: <Building2 size={24} className="text-sky-400 drop-shadow-[0_0_10px_rgba(56,189,248,0.5)]" />, color: 'text-white', bg: 'bg-gradient-to-br from-sky-500/10 to-sky-900/10 border-sky-500/20',
             href: '/dashboard/empresas'
           },
           {
             label: 'Empleados', val: stats?.empleados ?? 0,
-            icon: <Users size={20} />, color: 'text-violet-400', bg: 'from-violet-500/10',
+            icon: <Users size={24} className="text-violet-400 drop-shadow-[0_0_10px_rgba(167,139,250,0.5)]" />, color: 'text-white', bg: 'bg-gradient-to-br from-violet-500/10 to-violet-900/10 border-violet-500/20',
             href: '/dashboard/empresas'
+          },
+          {
+            label: 'Baterías Completas', val: stats?.completados ?? 0,
+            icon: <CheckCircle2 size={24} className="text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" />, color: 'text-emerald-400', bg: 'bg-gradient-to-br from-emerald-500/10 to-emerald-900/10 border-emerald-500/20',
+            href: '/dashboard/resultados'
+          },
+          {
+            label: 'Riesgo Clínico Alto', val: stats?.riesgoAlto ?? 0,
+            icon: <AlertTriangle size={24} className="text-red-400 drop-shadow-[0_0_10px_rgba(248,113,113,0.5)]" />, color: 'text-red-400', bg: 'bg-gradient-to-br from-red-500/10 to-red-900/10 border-red-500/20',
+            href: '/dashboard/resultados'
           },
           {
             label: 'Pendientes', val: stats?.pendientes ?? 0,
-            icon: <ClipboardList size={20} />, color: 'text-slate-300', bg: 'from-slate-500/10',
+            icon: <ClipboardList size={24} className="text-slate-400" />, color: 'text-white', bg: 'bg-slate-800/40 border-white/5',
             href: '/dashboard/empresas'
           },
           {
-            label: 'En proceso', val: stats?.enProceso ?? 0,
-            icon: <Activity size={20} />, color: 'text-amber-400', bg: 'from-amber-500/10',
+            label: 'En Proceso AI', val: stats?.enProceso ?? 0,
+            icon: <Activity size={24} className="text-amber-400" />, color: 'text-white', bg: 'bg-slate-800/40 border-amber-500/10',
             href: '/dashboard/empresas'
-          },
-          {
-            label: 'Completados', val: stats?.completados ?? 0,
-            icon: <CheckCircle2 size={20} />, color: 'text-emerald-400', bg: 'from-emerald-500/10',
-            href: '/dashboard/resultados'
-          },
-          {
-            label: 'Riesgo alto', val: stats?.riesgoAlto ?? 0,
-            icon: <AlertTriangle size={20} />, color: 'text-red-400', bg: 'from-red-500/10',
-            href: '/dashboard/resultados'
           },
         ].map(s => (
           <Link
             key={s.label}
             href={s.href}
-            className={`glass-card p-4 bg-gradient-to-br ${s.bg} to-transparent hover:scale-105 transition-transform`}
+            className={`glass-card p-6 flex flex-col justify-between h-full rounded-3xl ${s.bg} border hover:-translate-y-1 transition-all shadow-[0_0_30px_rgba(0,0,0,0.2)] hover:shadow-xl`}
           >
-            <div className={`${s.color} mb-2`}>{s.icon}</div>
-            {loading
-              ? <div className="h-7 w-10 bg-white/10 rounded animate-pulse mb-1" />
-              : <div className={`text-2xl font-bold ${s.color}`}>{s.val}</div>
-            }
-            <div className="text-xs text-slate-500">{s.label}</div>
+            <div className="mb-4">{s.icon}</div>
+            <div>
+              {loading
+                ? <div className="h-8 w-12 bg-white/10 rounded-lg animate-pulse mb-2" />
+                : <div className={`text-3xl font-black mb-1 ${s.color}`}>{s.val}</div>
+              }
+              <div className="text-sm font-medium text-slate-400">{s.label}</div>
+            </div>
           </Link>
         ))}
       </div>
@@ -197,46 +199,48 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             {empresas.map(emp => {
-              const fetchDate = emp.creadoEn?.toDate ? emp.creadoEn.toDate().toLocaleDateString() : 'Recientemente';
+              const fetchDate = emp.creadoEn?.toDate ? emp.creadoEn.toDate().toLocaleDateString() : 'Procesado';
               
               return (
                 <div
                   key={emp.id}
-                  className="glass-card p-5 flex flex-col md:flex-row md:items-center gap-4 hover:border-sky-500/30 transition-all border-l-4 border-transparent hover:border-l-sky-500"
+                  className="glass-card p-6 rounded-3xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-sky-500/40 hover:bg-slate-800/40 transition-all border border-transparent shadow-lg bg-slate-800/20 group"
                 >
-                  <div className="w-12 h-12 rounded-xl bg-sky-500/10 flex items-center justify-center shrink-0">
-                    <Building2 className="text-sky-400" size={24} />
-                  </div>
-                  
-                  <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <Link href={`/dashboard/empresas/${emp.id}`} className="hover:underline hover:text-sky-400 w-fit">
-                      <p className="text-white font-bold text-base truncate mb-1">{emp.nombre}</p>
-                    </Link>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
-                      <span className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded">
-                        <CheckCircle2 size={12} className="text-emerald-400" /> 
-                        {emp.completados} baterías aplicadas
-                      </span>
-                      <span className="flex items-center gap-1">
-                        Última act.: <span className="text-slate-300">{fetchDate}</span>
-                      </span>
+                  <div className="flex items-center gap-5 flex-1 min-w-0">
+                    <div className="w-14 h-14 rounded-2xl bg-sky-500/10 flex items-center justify-center shrink-0 border border-sky-500/20 shadow-inner group-hover:scale-110 transition-transform shadow-sky-500/10">
+                      <Building2 className="text-sky-400" size={28} />
+                    </div>
+                    
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <Link href={`/dashboard/empresas/${emp.id}`} className="hover:text-sky-400 transition-colors w-fit">
+                        <h3 className="text-white font-black text-xl truncate mb-1">{emp.nombre}</h3>
+                      </Link>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-slate-400 font-medium tracking-wide">
+                        <span className="flex items-center gap-2 bg-slate-900/50 px-3 py-1 rounded-lg border border-white/5">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.8)]"></span> 
+                          {emp.completados} Evaluaciones
+                        </span>
+                        <span className="flex items-center gap-2">
+                          Último Movimiento: <span className="text-slate-300">{fetchDate}</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t border-white/5 md:border-t-0">
+                  <div className="flex items-center gap-3 w-full md:w-auto mt-2 md:mt-0 pt-4 md:pt-0 border-t border-white/5 md:border-none">
                     <Link 
                       href={`/dashboard/empresas/${emp.id}`} 
-                      className="flex-1 md:flex-none btn-secondary text-sm flex items-center justify-center gap-2 py-2 px-4 shadow-sm"
+                      className="flex-1 md:flex-none text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 font-bold text-sm flex items-center justify-center gap-2 py-3 px-6 rounded-xl transition-all"
                     >
-                      <Users size={14} /> Ver empleados
+                      <Users size={16} /> Administrar
                     </Link>
                     <Link 
                       href={`/dashboard/resultados?empresaId=${emp.id}`} 
-                      className="flex-1 md:flex-none btn-primary text-sm flex items-center justify-center gap-2 py-2 px-4 bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 shadow-md shadow-sky-900/50 border-none"
+                      className="flex-1 md:flex-none text-white bg-gradient-to-r from-sky-500 to-indigo-500 hover:from-sky-400 hover:to-indigo-400 font-bold text-sm flex items-center justify-center gap-2 py-3 px-6 rounded-xl shadow-lg shadow-sky-500/20 transition-all border border-t-white/20"
                     >
-                      <TrendingUp size={14} /> Informes y Resultados
+                      <TrendingUp size={16} /> Ver Reportes
                     </Link>
                   </div>
                 </div>

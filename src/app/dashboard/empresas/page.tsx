@@ -351,18 +351,17 @@ export default function EmpresasPage() {
       </div>
 
       {/* Búsqueda */}
-      <div className="bg-slate-800/40 border border-slate-700 rounded-2xl p-2 mb-8 mt-4 relative z-20 shadow-lg">
+      <div className="bg-slate-900/40 border border-slate-700/50 rounded-full mb-8 mt-4 relative z-20 shadow-inner">
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-            <input
-              id="search-empresas"
-              type="text"
-              placeholder="Buscar por nombre, NIT o ciudad..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              style={{ paddingLeft: '3rem' }}
-              className="w-full bg-transparent border-none text-white pr-4 py-3 focus:outline-none focus:ring-0 placeholder-slate-500"
-            />
+          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+          <input
+            id="search-empresas"
+            type="text"
+            placeholder="Buscar por nombre, NIT o ciudad..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full bg-transparent border-none text-white pl-12 pr-6 py-3 focus:outline-none focus:ring-0 placeholder-slate-500 font-medium"
+          />
         </div>
       </div>
 
@@ -389,106 +388,108 @@ export default function EmpresasPage() {
           )}
         </div>
       ) : (
-        <div className="glass-card rounded-2xl overflow-hidden mt-6 border border-white/10">
+        <div className="glass-card rounded-3xl overflow-hidden mt-6 bg-slate-800/20 border border-transparent shadow-[0_0_30px_rgba(0,0,0,0.1)]">
           <div className="overflow-x-auto w-full">
-            <table className="w-full text-sm text-left whitespace-nowrap" style={{ borderSpacing: 0 }}>
-              <thead className="text-xs text-slate-400 bg-slate-800/80 uppercase border-b border-white/10">
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-slate-400 bg-slate-900/60 uppercase">
                 <tr>
-                  <th style={{ padding: '1.25rem 2rem' }} className="font-bold tracking-wider">Empresa / NIT</th>
-                  <th style={{ padding: '1.25rem 2rem' }} className="font-bold tracking-wider">Sector</th>
-                  <th style={{ padding: '1.25rem 2rem' }} className="font-bold tracking-wider">Ubicación</th>
-                  <th style={{ padding: '1.25rem 2rem' }} className="font-bold tracking-wider">Contacto</th>
-                  <th style={{ padding: '1.25rem 2rem' }} className="font-bold tracking-wider text-center">Empleados</th>
-                  <th style={{ padding: '1.25rem 2rem' }} className="font-bold tracking-wider text-right">Acciones</th>
+                  <th className="px-6 py-5 font-bold tracking-wider">Empresa / NIT</th>
+                  <th className="px-6 py-5 font-bold tracking-wider">Sector</th>
+                  <th className="px-6 py-5 font-bold tracking-wider">Ubicación</th>
+                  <th className="px-6 py-5 font-bold tracking-wider">Contacto</th>
+                  <th className="px-6 py-5 font-bold tracking-wider text-center">Empleados</th>
+                  <th className="px-6 py-5 font-bold tracking-wider text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-white/5">
                 {filtradas.map(emp => (
-                  <tr key={emp.id} className="border-b border-white/10 hover:bg-slate-800/40 transition-colors">
+                  <tr key={emp.id} className="hover:bg-slate-800/40 transition-colors group">
                     {/* Empresa y NIT */}
-                    <td style={{ padding: '1.25rem 2rem' }}>
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500/20 to-violet-500/20 border border-sky-500/20 flex items-center justify-center shrink-0">
-                          <Building2 className="text-sky-400" size={18} />
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-sky-500/20 to-violet-500/20 border border-sky-500/20 flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform">
+                          <Building2 className="text-sky-400" size={20} />
                         </div>
                         <div>
-                          <div className="font-bold text-white text-base">{emp.nombre}</div>
-                          <div className="text-xs text-slate-400 font-mono mt-0.5">NIT: {emp.nit}</div>
+                          <div className="font-black text-white text-base truncate max-w-[200px]" title={emp.nombre}>{emp.nombre}</div>
+                          <div className="text-xs text-slate-400 font-mono mt-1 font-medium">NIT: {emp.nit}</div>
                         </div>
                       </div>
                     </td>
                     
                     {/* Sector */}
-                    <td style={{ padding: '1.25rem 2rem' }}>
-                      <span className="text-xs px-3 py-1 rounded-full bg-slate-800 border border-slate-700 text-slate-300 font-medium">
+                    <td className="px-6 py-5">
+                      <span className="text-xs px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-bold whitespace-nowrap">
                         {SECTORES.find(s => s.value === emp.sector)?.label ?? emp.sector}
                       </span>
                     </td>
 
                     {/* Ubicación */}
-                    <td style={{ padding: '1.25rem 2rem' }}>
-                      <div className="flex items-center gap-2 text-slate-300">
-                        <MapPin size={14} className="text-slate-500" />
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-slate-300 font-medium whitespace-nowrap">
+                        <MapPin size={16} className="text-slate-500" />
                         <span>{emp.ciudad || 'N/A'}, {emp.departamento || '-'}</span>
                       </div>
                     </td>
 
                     {/* Contacto */}
-                    <td style={{ padding: '1.25rem 2rem' }} className="space-y-1">
+                    <td className="px-6 py-5 space-y-1">
                       {emp.email && (
-                        <div className="flex items-center gap-2 text-slate-400 text-xs">
-                          <Mail size={13} className="text-slate-500" /> {emp.email}
+                        <div className="flex items-center gap-2 text-slate-400 text-sm font-medium">
+                          <Mail size={14} className="text-slate-500" /> <span className="truncate max-w-[150px]" title={emp.email}>{emp.email}</span>
                         </div>
                       )}
                       {emp.telefono && (
-                        <div className="flex items-center gap-2 text-slate-400 text-xs">
-                          <Phone size={13} className="text-slate-500" /> {emp.telefono}
+                        <div className="flex items-center gap-2 text-slate-400 text-sm font-medium mt-1">
+                          <Phone size={14} className="text-slate-500" /> {emp.telefono}
                         </div>
                       )}
-                      {!emp.email && !emp.telefono && <span className="text-slate-600 text-xs">-</span>}
+                      {!emp.email && !emp.telefono && <span className="text-slate-600 text-sm">-</span>}
                     </td>
 
                     {/* Estadísticas */}
-                    <td style={{ padding: '1.25rem 2rem' }} className="text-center">
-                      <div className="inline-flex items-center gap-4 bg-slate-900/50 px-4 py-2 rounded-xl border border-white/5">
+                    <td className="px-6 py-5 text-center">
+                      <div className="inline-flex items-center gap-4 bg-slate-900/50 px-4 py-2.5 rounded-2xl border border-white/5 shadow-inner">
                         <div className="flex flex-col items-center">
-                          <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Emp.</span>
-                          <span className="text-sky-400 font-bold flex items-center gap-1 text-sm">
-                            <Users size={12} /> {emp.cantidadEmpleados}
+                          <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider mb-1">Emp.</span>
+                          <span className="text-sky-400 font-black flex items-center gap-1 text-sm">
+                            <Users size={14} /> {emp.cantidadEmpleados}
                           </span>
                         </div>
-                        <div className="w-px h-6 bg-slate-700"></div>
+                        <div className="w-px h-8 bg-slate-700/50"></div>
                         <div className="flex flex-col items-center">
-                          <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider mb-1">Bats.</span>
-                          <span className="text-emerald-400 font-bold flex items-center gap-1 text-sm">
-                            <Hash size={12} /> {emp.totalBaterias ?? 0}
+                          <span className="text-[10px] text-slate-500 uppercase font-black tracking-wider mb-1">Bats.</span>
+                          <span className="text-emerald-400 font-black flex items-center gap-1 text-sm">
+                            <Hash size={14} /> {emp.totalBaterias ?? 0}
                           </span>
                         </div>
                       </div>
                     </td>
 
                     {/* Acciones */}
-                    <td style={{ padding: '1.25rem 2rem' }}>
-                      <div className="flex items-center justify-end gap-2 text-sm">
-                        <button 
-                          onClick={() => abrirEdicion(emp)} 
-                          className="p-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-all" 
-                          title="Editar empresa"
-                        >
-                          <Edit2 size={16} />
-                        </button>
-                        <button 
-                          onClick={() => setConfirmDelete(emp.id)} 
-                          className="p-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-all" 
-                          title="Eliminar empresa"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                    <td className="px-6 py-5">
+                      <div className="flex justify-end gap-3">
+                        <div className="flex items-center gap-2 bg-slate-900/50 p-1.5 rounded-xl border border-white/5">
+                          <button 
+                            onClick={() => abrirEdicion(emp)} 
+                            className="p-2 bg-transparent hover:bg-slate-700 text-slate-400 hover:text-white rounded-lg transition-all" 
+                            title="Editar"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button 
+                            onClick={() => setConfirmDelete(emp.id)} 
+                            className="p-2 bg-transparent hover:bg-red-500/20 text-slate-400 hover:text-red-400 rounded-lg transition-all" 
+                            title="Eliminar"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
                         <a 
                           href={`/dashboard/empresas/${emp.id}`} 
-                          className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg font-semibold transition-all shadow-md shadow-sky-500/20 flex items-center gap-2 ml-2"
+                          className="px-5 py-2.5 bg-sky-500 hover:bg-sky-400 text-white rounded-xl font-bold transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)] hover:shadow-[0_0_25px_rgba(14,165,233,0.5)] flex items-center gap-2"
                         >
-                          Empleados <ArrowRight size={14} />
+                          Empleados <ArrowRight size={16} />
                         </a>
                       </div>
                     </td>

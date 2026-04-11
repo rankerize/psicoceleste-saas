@@ -246,10 +246,13 @@ export default function RegistroResultadosPage() {
               </div>
 
               {/* Lado Derecho: Interacción asimétrica */}
-              <div className="glass-card p-10 md:p-14 rounded-[3rem] border border-white/5 bg-slate-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative overflow-hidden backdrop-blur-3xl">
-                 <div className="absolute -top-32 -right-32 w-64 h-64 bg-sky-500/20 rounded-full blur-[80px] pointer-events-none"></div>
+              <div className="glass-card py-12 px-8 sm:px-10 md:px-12 rounded-3xl border border-white/5 bg-slate-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative backdrop-blur-3xl w-full max-w-md mx-auto lg:max-w-[480px]">
+                 {/* Contenedor separado para contener el difuminado decorativo sin cortar el contenido principal */}
+                 <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                    <div className="absolute -top-32 -right-32 w-64 h-64 bg-sky-500/20 rounded-full blur-[80px]"></div>
+                 </div>
                  
-                 <div className="relative z-10 flex flex-col h-full justify-center space-y-8">
+                 <div className="relative z-10 flex flex-col h-full justify-center space-y-8 w-full">
                     <div>
                        <label className="text-sky-400 font-bold mb-3 block text-sm tracking-widest uppercase">Directorio Activo</label>
                        <select 

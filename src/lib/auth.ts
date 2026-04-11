@@ -7,6 +7,7 @@ import {
   GoogleAuthProvider, 
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   User
 } from 'firebase/auth';
 import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
@@ -63,6 +64,10 @@ export async function signInWithGoogle() {
 
 export async function logout() {
   return signOut(auth);
+}
+
+export async function resetPassword(email: string) {
+  return sendPasswordResetEmail(auth, email);
 }
 
 /** Hook para obtener el usuario autenticado en componentes cliente */

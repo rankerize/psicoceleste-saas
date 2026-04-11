@@ -12,7 +12,7 @@ import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 import {
   collection, addDoc, updateDoc, deleteDoc, doc, query,
-  where, getDocs, getDoc, serverTimestamp, Timestamp
+  where, getDocs, getDoc, serverTimestamp, Timestamp, increment
 } from 'firebase/firestore';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -103,6 +103,39 @@ export default function EmpleadosPage() {
 
   useEffect(() => { cargarDatos(); }, [cargarDatos]);
 
+  // ── Verificación de Límites ───────────────────────────────────────────────────
+  const verificarLimites = async (cantidadASumar: number): Promise<boolean> => {
+    if (!user) return false;
+    
+    if (user.email === 'rankerize@gmail.com' || user.email?.endsWith('@rankerize.com')) {
+      return true;
+    }
+
+    const userDoc = await getDoc(doc(db, 'users', user.uid));
+    if (!userDoc.exists()) return false;
+    
+    const data = userDoc.data();
+    const plan = data.plan || 'free';
+    const baterias_usadas = data.baterias_usadas || 0;
+    
+    if (plan === 'pro') return true;
+
+    const limit = plan === 'starter' ? 100 : 3;
+    const allowance = limit - baterias_usadas;
+    
+    if (allowance < cantidadASumar) {
+       let msg = `Límite alcanzado. Tu plan (${plan.toUpperCase()}) permite un máximo de ${limit} baterías y ya has usado ${baterias_usadas}. `;
+       if (cantidadASumar > 1) {
+           msg = `No tienes cupos suficientes para importar ${cantidadASumar} empleados. Tu plan (${plan.toUpperCase()}) permite un tope de ${limit} y te quedan ${allowance}. `;
+       }
+       msg += 'Por favor actualiza al Plan PRO en Facturación para seguir evaluando ilimitadamente.';
+       setError(msg);
+       return false;
+    }
+    
+    return true;
+  };
+
   // ── Guardar empleado ──────────────────────────────────────────────────────────
 
   const onGuardar = async (e: React.FormEvent) => {
@@ -115,11 +148,17 @@ export default function EmpleadosPage() {
       if (editando) {
         await updateDoc(doc(db, 'empleados', editando.id), payload);
       } else {
+        const puedeCrear = await verificarLimites(1);
+        if (!puedeCrear) {
+           setSaving(false);
+           return;
+        }
         await addDoc(collection(db, 'empleados'), {
           ...payload,
           estadoBateria: 'pendiente',
           creadoEn: serverTimestamp(),
         });
+        await updateDoc(doc(db, 'users', user!.uid), { baterias_usadas: increment(1) });
       }
       setShowModal(false);
       setEditando(null);
@@ -154,9 +193,24 @@ export default function EmpleadosPage() {
     setError('');
     const text = await file.text();
     const lines = text.trim().split('\n').slice(1); // skip header
+    const validLines = lines.filter(l => l.split(',').length >= 2 && l.split(',')[0].trim() && l.split(',')[1].trim());
+
+    if (validLines.length === 0) {
+      setError('El archivo CSV está vacío o no es válido.');
+      setCsvLoading(false);
+      return;
+    }
+
+    const puedeImportar = await verificarLimites(validLines.length);
+    if (!puedeImportar) {
+      setCsvLoading(false);
+      e.target.value = '';
+      return;
+    }
+
     let imported = 0;
     let failed = 0;
-    for (const line of lines) {
+    for (const line of validLines) {
       const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
       if (cols.length < 2) { failed++; continue; }
       const [cedula, nombre, cargo = '', tipoCargo = 'auxiliar', area = '', email = '', telefono = ''] = cols;
@@ -173,6 +227,12 @@ export default function EmpleadosPage() {
         imported++;
       } catch { failed++; }
     }
+    if (imported > 0) {
+      await updateDoc(doc(db, 'users', user!.uid), {
+        baterias_usadas: increment(imported)
+      });
+    }
+
     setCsvLoading(false);
     e.target.value = '';
     await cargarDatos();

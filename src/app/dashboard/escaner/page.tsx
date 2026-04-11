@@ -246,20 +246,20 @@ export default function RegistroResultadosPage() {
               </div>
 
               {/* Lado Derecho: Interacción asimétrica */}
-              <div className="glass-card py-12 px-8 sm:px-10 md:px-12 rounded-3xl border border-white/5 bg-slate-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative backdrop-blur-3xl w-full max-w-md mx-auto lg:max-w-[480px]">
+              <div className="glass-card py-10 px-8 sm:px-10 rounded-[2rem] border border-white/5 bg-slate-800/50 shadow-[0_0_50px_rgba(0,0,0,0.5)] relative backdrop-blur-3xl w-full max-w-md mx-auto lg:max-w-[480px]">
                  {/* Contenedor separado para contener el difuminado decorativo sin cortar el contenido principal */}
-                 <div className="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
+                 <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none">
                     <div className="absolute -top-32 -right-32 w-64 h-64 bg-sky-500/20 rounded-full blur-[80px]"></div>
                  </div>
                  
-                 <div className="relative z-10 flex flex-col h-full justify-center space-y-8 w-full">
+                 <div className="relative z-10 flex flex-col justify-center space-y-6 w-full">
                     <div>
-                       <label className="text-sky-400 font-bold mb-3 block text-sm tracking-widest uppercase">Directorio Activo</label>
+                       <label className="text-sky-400 font-bold mb-3 block text-[13px] tracking-widest uppercase">Directorio Activo</label>
                        <select 
-                          className="w-full bg-slate-900 border border-slate-700 hover:border-slate-500 text-white text-xl py-6 px-6 rounded-2xl focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all outline-none appearance-none cursor-pointer shadow-inner" 
+                          className="w-full bg-slate-900 border border-slate-700 hover:border-slate-500 text-white text-lg py-4 px-5 rounded-2xl focus:ring-2 focus:ring-sky-500/50 focus:border-sky-500 transition-all outline-none appearance-none cursor-pointer shadow-inner min-h-[60px]" 
                           value={selectedEmpresa} 
                           onChange={e => setSelectedEmpresa(e.target.value)}
-                          style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.5rem top 50%', backgroundSize: '0.9rem auto' }}
+                          style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.9rem auto' }}
                        >
                           <option value="">-- Toca para seleccionar --</option>
                           {empresas.map(emp => <option key={emp.id} value={emp.id}>{emp.nombre}</option>)}
@@ -273,9 +273,9 @@ export default function RegistroResultadosPage() {
                           setStep(2);
                        }}
                        disabled={!selectedEmpresa}
-                       className="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold text-xl py-6 rounded-2xl transition-all flex justify-center items-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(14,165,233,0.3)] hover:scale-[1.02]"
+                       className="w-full bg-sky-500 hover:bg-sky-400 text-white font-bold text-lg py-4 rounded-2xl transition-all flex justify-center items-center gap-3 disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_0_40px_rgba(14,165,233,0.3)] hover:scale-[1.02] min-h-[60px]"
                     >
-                       Confirmar Entorno <ChevronRight size={24} />
+                       Confirmar Entorno <ChevronRight size={20} />
                     </button>
                     <p className="text-slate-500 text-xs text-center">La configuración elegida afectará toda la sesión actual.</p>
                  </div>
@@ -379,15 +379,15 @@ export default function RegistroResultadosPage() {
                  </div>
 
                  {/* Selector Empleado */}
-                 <div className="glass-card p-8 rounded-[2rem] border-white/5 bg-slate-800/40">
-                    <label className="text-white font-bold flex items-center gap-3 mb-4 text-lg">
-                      <User className="text-purple-400" size={24}/> Empleado a procesar
+                 <div className="glass-card p-6 md:p-8 rounded-[2rem] border-white/5 bg-slate-800/40">
+                    <label className="text-white font-bold flex items-center gap-3 mb-4 text-[15px]">
+                      <User className="text-purple-400" size={20}/> Empleado a procesar
                     </label>
                     <select 
-                       className="input-field w-full bg-slate-900 border-slate-700 focus:border-purple-500 py-5 px-6 text-lg rounded-2xl appearance-none shadow-inner" 
+                       className="input-field w-full bg-slate-900 border-slate-700 focus:border-purple-500 py-4 px-5 text-lg rounded-2xl appearance-none shadow-inner min-h-[60px]" 
                        value={selectedEmpleado} 
                        onChange={e => setSelectedEmpleado(e.target.value)}
-                       style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.5rem top 50%', backgroundSize: '0.9rem auto' }}
+                       style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '0.9rem auto' }}
                     >
                        <option value="">-- Buscar en directorio --</option>
                        {empleados.map(emp => <option key={emp.id} value={emp.id}>{emp.nombre} ({emp.cedula})</option>)}
@@ -480,7 +480,7 @@ export default function RegistroResultadosPage() {
                          <button 
                            onClick={guardarResultadoHaciaDB}
                            disabled={saving || !selectedEmpleado}
-                           className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 py-5 rounded-2xl font-black text-xl text-slate-900 flex justify-center items-center gap-3 transition-all shadow-[0_0_40px_rgba(16,185,129,0.3)] hover:scale-[1.02]"
+                           className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 py-5 rounded-2xl font-black text-xl text-slate-900 flex justify-center items-center gap-3 transition-all shadow-[0_0_40px_rgba(10,185,129,0.3)] hover:scale-[1.02]"
                          >
                            {saving ? <Loader2 className="animate-spin" size={24} /> : <Save size={24} />} 
                            Guardar Resultados Definitivos
@@ -517,15 +517,15 @@ export default function RegistroResultadosPage() {
                  </div>
 
                  {/* Selector Empleado (Manual) */}
-                 <div className="glass-card p-10 md:p-12 rounded-[3.5rem] border border-sky-500/20 bg-slate-800/40 shadow-2xl mb-16 relative overflow-hidden backdrop-blur-md">
+                 <div className="glass-card p-8 md:p-10 rounded-[2.5rem] border border-sky-500/20 bg-slate-800/40 shadow-2xl mb-16 relative overflow-hidden backdrop-blur-md">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-sky-500/10 rounded-full blur-[80px] pointer-events-none -mr-32 -mt-32"></div>
-                    <div className="relative z-10">
-                       <label className="text-sky-400 font-bold mb-4 block text-sm tracking-widest uppercase">1. Seleccionar Cédula / Nombre</label>
+                    <div className="relative z-10 w-full">
+                       <label className="text-sky-400 font-bold mb-4 block text-[13px] tracking-widest uppercase">1. Seleccionar Cédula / Nombre</label>
                        <select 
-                          className="w-full bg-slate-900 border border-slate-700 hover:border-slate-500 focus:border-sky-500 text-white text-2xl py-6 px-8 rounded-3xl outline-none appearance-none shadow-inner transition-all focus:ring-4 focus:ring-sky-500/20" 
+                          className="w-full bg-slate-900 border border-slate-700 hover:border-slate-500 focus:border-sky-500 text-white text-xl py-4 px-6 rounded-[1.5rem] outline-none appearance-none shadow-inner transition-all focus:ring-4 focus:ring-sky-500/20 min-h-[60px]" 
                           value={selectedEmpleado} 
                           onChange={e => setSelectedEmpleado(e.target.value)}
-                          style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 2rem top 50%', backgroundSize: '1.2rem auto' }}
+                          style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem top 50%', backgroundSize: '1rem auto' }}
                        >
                           <option value="">-- Revelar Directorio --</option>
                           {empleados.map(emp => <option key={emp.id} value={emp.id}>{emp.nombre} ({emp.cedula})</option>)}

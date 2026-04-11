@@ -172,15 +172,14 @@ export default function EscanerAIPage() {
   return (
     <div className="max-w-6xl mx-auto space-y-8 animate-fade-in-up">
       <div className="flex items-center gap-3">
-        <h1 className="text-2xl font-bold text-white">Escáner Óptico AI</h1>
+        <h1 className="text-2xl font-bold text-white">Registro de Resultados</h1>
         <span className="badge bg-purple-500/20 text-purple-400 border border-purple-500/30">
-          Reconocimiento Inteligente (Gemini 1.5)
+          Escáner IA + Digitación Manual
         </span>
       </div>
 
       <p className="text-slate-400 mb-8 max-w-3xl">
-        Ahorra horas de digitación manual. Toma una foto buena y nítida de una página del cuadernillo diligenciado. 
-        Evita sombras oscuras o páginas muy torcidas para garantizar una lectura matemática precisa.
+        Escoge cómo deseas registrar los resultados físicos: toma una foto usando nuestro Motor de Inteligencia Artificial para procesamiento automático, o digita las respuestas manualmente utilizando el formulario web interactivo.
       </p>
 
       {/* Selectores Globales */}
@@ -215,29 +214,58 @@ export default function EscanerAIPage() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Zona de Carga */}
+        {/* Zona de Carga (Escáner o Manual) */}
         <div className="space-y-6">
           {photos.length === 0 ? (
-            <div 
-              onDragOver={e => e.preventDefault()}
-              onDrop={handleDrop}
-              onClick={() => fileInputRef.current?.click()}
-              className="glass-card p-12 flex flex-col items-center justify-center border-dashed border-2 border-slate-700 hover:border-purple-500/50 hover:bg-white/5 transition-all cursor-pointer rounded-2xl h-[400px]"
-            >
-              <input 
-                type="file" 
-                accept="image/*" 
-                multiple
-                className="hidden" 
-                ref={fileInputRef}
-                onChange={e => handleFiles(e.target.files)}
-                capture="environment" // Habilita la cámara en tablets/celulares directamente
-              />
-              <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-purple-400">
-                <Camera size={28} />
-              </div>
-              <h3 className="text-white font-bold mb-2">Toma fotos o sube archivos</h3>
-              <p className="text-slate-400 text-sm text-center">Formato JPG o PNG</p>
+            <div className="grid grid-cols-1 gap-4">
+                {/* Opción 1: Escáner Óptico AI */}
+                <div 
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="glass-card p-10 flex flex-col items-center justify-center border-dashed border-2 border-slate-700 hover:border-purple-500/50 hover:bg-white/5 transition-all cursor-pointer rounded-2xl h-[280px]"
+                >
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    multiple
+                    className="hidden" 
+                    ref={fileInputRef}
+                    onChange={e => handleFiles(e.target.files)}
+                    capture="environment" // Habilita la cámara
+                  />
+                  <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mb-4 text-purple-400 shadow-lg shadow-purple-500/20">
+                    <Camera size={28} />
+                  </div>
+                  <h3 className="text-white font-bold mb-2">Escaneo Óptico con IA</h3>
+                  <p className="text-slate-400 text-sm text-center">Toma fotos o sube archivos JPG/PNG del cuadernillo diligenciado.</p>
+                </div>
+
+                {/* Opción 2: Digitación Manual */}
+                <div className="glass-card p-8 flex flex-col items-center justify-center border border-slate-700 rounded-2xl h-[180px]">
+                    <h3 className="text-white font-bold mb-2 flex items-center gap-2">
+                       <FileUp className="text-sky-400" size={20} />
+                       Digitación Manual Interactiva
+                    </h3>
+                    <p className="text-slate-400 text-sm text-center mb-4">
+                       Abre el cuestionario web y digita las respuestas manualmente copiando del papel.
+                    </p>
+                    
+                    {selectedEmpleado ? (
+                       <a 
+                          href={`/bateria/${empleados.find(e => e.id === selectedEmpleado)?.cedula}?empresaId=${selectedEmpresa}&empleadoId=${selectedEmpleado}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-6 py-2 bg-gradient-to-r from-sky-600 to-sky-500 hover:from-sky-500 hover:to-sky-400 text-white font-bold rounded-xl shadow-lg shadow-sky-500/20 transition-all flex items-center gap-2"
+                       >
+                          Abrir Batería Web para Digitar
+                       </a>
+                    ) : (
+                       <div className="px-6 py-2 bg-slate-800 text-slate-500 rounded-xl flex items-center gap-2 font-medium border border-slate-700">
+                          <AlertCircle size={16} /> Selecciona un empleado arriba primero
+                       </div>
+                    )}
+                </div>
             </div>
           ) : (
             <div className="glass-card p-4 rounded-2xl border-purple-500/30 flex flex-col items-center max-h-[500px] overflow-y-auto">

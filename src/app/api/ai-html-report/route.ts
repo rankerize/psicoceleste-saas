@@ -108,6 +108,13 @@ Tu respuesta DEBE estar completamente conformada por puro HTML. NO AGREGUES COME
     htmlText = htmlText.replace(/^```html\n?/, '').replace(/\n?```$/, '').trim();
     if (htmlText.startsWith('```')) htmlText = htmlText.replace(/^```\n?/, '');
 
+    // Si se pide formato HTML nativo (visor a pantalla completa), devolverlo directo
+    if (searchParams.get('format') === 'html') {
+      return new NextResponse(htmlText, {
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+      });
+    }
+
     return NextResponse.json({ success: true, html: htmlText });
 
   } catch (error: any) {

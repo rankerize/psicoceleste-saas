@@ -7,7 +7,6 @@ import { collection, query, getDocs, doc, getDoc, where, addDoc, serverTimestamp
 import { useAuth } from '@/lib/auth';
 import { Loader2, Download, Bot, Target, Users, LayoutDashboard, BrainCircuit, Calendar, Database, FileText, Camera, FileUp, Sparkles, CheckCircle2 } from 'lucide-react';
 import { generarReporteWord } from '@/lib/docx/reporte-empresa';
-import { ReportPreview } from '@/components/ReportPreview';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
@@ -43,10 +42,6 @@ function ResultadosContent() {
   const [simulating, setSimulating] = useState(false);
   const [generandoDoc, setGenerandoDoc] = useState(false);
   
-  // Modal Previsualizador AI PDF
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewData, setPreviewData] = useState<{empId: string, resId: string} | null>(null);
-
   // Datos para gráficas
   const [chartDataArea, setChartDataArea] = useState<any[]>([]);
   const [chartDataRadar, setChartDataRadar] = useState<any[]>([]);
@@ -561,19 +556,21 @@ function ResultadosContent() {
                                            <td className="py-3 px-5 text-center">
                                                {res.calificacion ? (
                                                   <div className="flex items-center justify-center gap-2">
-                                                     <button
-                                                       onClick={() => { setPreviewData({empId: emp.id, resId: res.id}); setPreviewOpen(true); }}
-                                                       className="inline-flex items-center justify-center p-2 rounded-lg bg-purple-500/10 text-purple-400 hover:bg-purple-500 hover:text-white transition-colors border border-purple-500/20 shadow-md shadow-purple-500/10 hover:scale-105"
-                                                       title="✨ Previsualizar e Imprimir Reporte IA (Beta)"
+                                                     <a
+                                                       href={`/api/ai-html-report?empleadoId=${emp.id}&resultadoId=${res.id}&format=html`}
+                                                       target="_blank"
+                                                       rel="noreferrer"
+                                                       className="inline-flex items-center justify-center p-2 rounded-lg bg-gradient-to-r from-purple-600 to-sky-500 text-white hover:shadow-[0_0_20px_rgba(168,85,247,0.5)] transition-all border border-purple-500/20 hover:scale-105"
+                                                       title="✨ Previsualizar e Imprimir Reporte IA (Pantalla Completa)"
                                                      >
                                                          <Sparkles size={16} />
-                                                     </button>
+                                                     </a>
                                                      <a 
                                                        href={`/api/reporte-pdf?empleadoId=${emp.id}&resultadoId=${res.id}`}
                                                        target="_blank"
                                                        rel="noreferrer"
                                                        className="inline-flex items-center justify-center p-2 rounded-lg bg-sky-500/10 text-sky-400 hover:bg-sky-500 hover:text-white transition-colors border border-sky-500/20 hover:scale-105"
-                                                       title="Descargar Reporte PDF Clínico (Servidor)"
+                                                       title="Descargar Reporte PDF Clínico (Clásico)"
                                                      >
                                                          <FileText size={16} />
                                                      </a>
@@ -598,14 +595,6 @@ function ResultadosContent() {
             <p>Selecciona una empresa en el filtro superior para interactuar.</p>
          </div>
       )}
-
-      {/* AI HTML Previsualizador */}
-      <ReportPreview 
-          isOpen={previewOpen} 
-          onClose={() => setPreviewOpen(false)} 
-          empleadoId={previewData?.empId || ''} 
-          resultadoId={previewData?.resId || ''} 
-      />
 
     </div>
   );

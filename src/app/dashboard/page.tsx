@@ -197,7 +197,7 @@ export default function DashboardPage() {
             </Link>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="flex flex-col gap-6">
             {empresas.map(emp => {
               const fetchDate = emp.creadoEn?.toDate ? emp.creadoEn.toDate().toLocaleDateString() : 'Recientemente';
               
@@ -211,7 +211,9 @@ export default function DashboardPage() {
                   </div>
                   
                   <div className="flex-1 min-w-0 flex flex-col justify-center">
-                    <p className="text-white font-bold text-base truncate mb-1">{emp.nombre}</p>
+                    <Link href={`/dashboard/empresas/${emp.id}`} className="hover:underline hover:text-sky-400 w-fit">
+                      <p className="text-white font-bold text-base truncate mb-1">{emp.nombre}</p>
+                    </Link>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-slate-400">
                       <span className="flex items-center gap-1 bg-slate-800/50 px-2 py-1 rounded">
                         <CheckCircle2 size={12} className="text-emerald-400" /> 
@@ -231,10 +233,10 @@ export default function DashboardPage() {
                       <Users size={14} /> Ver empleados
                     </Link>
                     <Link 
-                      href="/dashboard/resultados" 
+                      href={`/dashboard/resultados?empresaId=${emp.id}`} 
                       className="flex-1 md:flex-none btn-primary text-sm flex items-center justify-center gap-2 py-2 px-4 bg-gradient-to-r from-violet-600 to-sky-600 hover:from-violet-500 hover:to-sky-500 shadow-md shadow-sky-900/50 border-none"
                     >
-                      <TrendingUp size={14} /> Ver resultados
+                      <TrendingUp size={14} /> Informes y Resultados
                     </Link>
                   </div>
                 </div>

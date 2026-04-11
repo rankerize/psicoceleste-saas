@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { collection, query, getDocs, doc, getDoc, where, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '@/lib/auth';
@@ -12,6 +13,16 @@ import {
 } from 'recharts';
 
 export default function ResultadosJerarquicos() {
+  return (
+    <Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="animate-spin text-sky-400" size={32} /></div>}>
+      <ResultadosContent />
+    </Suspense>
+  );
+}
+
+function ResultadosContent() {
+  const searchParams = useSearchParams();
+  const urlEmpresaId = searchParams.get('empresaId');
   const { user } = useAuth();
   const [empresas, setEmpresas] = useState<any[]>([]);
   const [selectedEmpresa, setSelectedEmpresa] = useState<string>('');
@@ -42,13 +53,17 @@ export default function ResultadosJerarquicos() {
       const empData = snap.docs.map(d => ({ id: d.id, ...d.data() } as { id: string; nombre: string; [key: string]: unknown }));
       setEmpresas(empData);
       
-      // Auto-seleccionar primera empresa que tenga nombre similar a rankerize o la primera de la lista
-      const rankerize = empData.find(e => e.nombre.toLowerCase().includes('rankerize'));
-      if (rankerize) setSelectedEmpresa(rankerize.id);
-      else if (empData.length > 0) setSelectedEmpresa(empData[0].id);
+      // Auto-seleccionar según query parameter, sino rankerize, sino primera.
+      if (urlEmpresaId && empData.some(e => e.id === urlEmpresaId)) {
+        setSelectedEmpresa(urlEmpresaId);
+      } else {
+        const rankerize = empData.find(e => e.nombre.toLowerCase().includes('rankerize'));
+        if (rankerize) setSelectedEmpresa(rankerize.id);
+        else if (empData.length > 0) setSelectedEmpresa(empData[0].id);
+      }
     }
     fetchEmpresas();
-  }, [user]);
+  }, [user, urlEmpresaId]);
 
   // 2. Fetch Datos Jerárquicos de la Empresa
   useEffect(() => {

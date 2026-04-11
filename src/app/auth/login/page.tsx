@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { Eye, EyeOff } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signInWithEmail, signInWithGoogle, resetPassword } from '@/lib/auth';
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   // Forgot password state
   const [showReset, setShowReset] = useState(false);
@@ -187,14 +189,33 @@ export default function LoginPage() {
                 </div>
                 <div style={{ marginBottom: '0.5rem' }}>
                   <label className="input-label">Contraseña</label>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    className="input-field"
-                    placeholder="••••••••"
-                    required
-                  />
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      className="input-field"
+                      style={{ paddingRight: '2.75rem', width: '100%' }}
+                      placeholder="••••••••"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(v => !v)}
+                      style={{
+                        position: 'absolute', right: '0.75rem',
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        color: '#64748b', display: 'flex', alignItems: 'center', padding: 0,
+                        transition: 'color 0.2s'
+                      }}
+                      onMouseEnter={e => (e.currentTarget.style.color = '#38bdf8')}
+                      onMouseLeave={e => (e.currentTarget.style.color = '#64748b')}
+                      tabIndex={-1}
+                      aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Forgot password link */}

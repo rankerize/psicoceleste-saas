@@ -312,19 +312,19 @@ function ResultadosContent() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 animate-fade-in-up pb-20">
+    <div className="max-w-7xl mx-auto pb-24 animate-fade-in-up">
       {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-4">
-        <div>
-           <h1 className="text-2xl font-bold flex items-center gap-2 text-white">
-             <LayoutDashboard className="text-emerald-400" />
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 glass-card p-6 rounded-2xl mb-10 shadow-lg border-b border-indigo-500/20">
+        <div className="mb-4 md:mb-0">
+           <h1 className="text-3xl font-black flex items-center gap-3 text-white">
+             <LayoutDashboard className="text-emerald-400" size={32} />
              Reporte Clínico y Cuantitativo
            </h1>
-           <p className="text-slate-400 text-sm mt-1">Dashboard Histórico de Evolución</p>
+           <p className="text-slate-400 text-base mt-2 ml-1">Dashboard Histórico de Evolución — <span className="text-sky-400 font-medium">Panel de Psicología</span></p>
         </div>
         
         {/* FILTROS PRINCIPALES */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-4">
            <select 
               value={selectedEmpresa}
               onChange={e => { setSelectedEmpresa(e.target.value); setSelectedPeriodo('todos'); }}
@@ -374,61 +374,62 @@ function ResultadosContent() {
              <p>{simulating ? 'Inyectando Evaluaciones Históricas de Enero y Marzo...' : 'Cargando Evaluaciones...'}</p>
           </div>
       ) : selectedEmpresa ? (
-         <div className="space-y-6">
+         <div className="w-full">
             
             {/* HERRAMIENTA DEV */}
             {periodos.length === 0 && (
-                <div className="bg-amber-500/10 border border-amber-500/30 p-4 rounded-xl flex items-center justify-between">
+                <div className="bg-amber-500/10 border border-amber-500/30 p-5 rounded-2xl flex items-center justify-between mb-10 shadow-lg">
                    <div className="flex items-center gap-3 text-amber-300 text-sm">
-                      <Database size={18} />
-                      <p>No se encontraron resultados previos en esta empresa. ¿Quieres generar una simulación de **Enero** y **Marzo**?</p>
+                      <Database size={20} />
+                      <p className="font-medium">No se encontraron resultados previos en esta empresa. ¿Quieres generar una simulación de **Enero** y **Marzo**?</p>
                    </div>
-                   <button onClick={handleSimularHistorial} className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors shadow-lg">
+                   <button onClick={handleSimularHistorial} className="bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-xl shadow-amber-500/20 font-bold px-6 py-3 rounded-xl transition-all">
                        ➕ Inyectar Datos Demo
                    </button>
                 </div>
             )}
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden border border-slate-700/60 shadow-lg">
-                  <div className="w-1 absolute right-0 top-0 bottom-0 bg-sky-500"></div>
-                  <span className="text-slate-400 text-sm flex items-center gap-1 mb-2"><Users size={14}/> Evaluaciones en el Periodo</span>
-                  <span className="text-3xl font-bold text-white">{resultados.length}</span>
-                  <span className="text-xs text-slate-400 mt-1">Periodo: {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Histórico global'}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-10 w-full relative z-10">
+               <div className="glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-sky-500/50 shadow-xl transition-all hover:-translate-y-1">
+                  <div className="w-1.5 absolute right-0 top-0 bottom-0 bg-sky-500"></div>
+                  <span className="text-sky-300 text-sm font-bold flex items-center gap-2 mb-3"><Users size={16}/> Evaluaciones Totales</span>
+                  <span className="text-4xl font-black text-white">{resultados.length}</span>
+                  <span className="text-xs text-slate-400 mt-2 bg-slate-800/50 py-1 px-2 rounded-md self-start border border-white/5">Periodo: {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Global'}</span>
                </div>
-               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden border border-slate-700/60 shadow-lg">
-                  <div className="w-1 absolute right-0 top-0 bottom-0 bg-red-500"></div>
-                  <span className="text-red-300 text-sm flex items-center gap-1 mb-2"><Target size={14}/> Casos Críticos (Alto)</span>
-                  <span className="text-3xl font-bold text-red-500">{resultados.filter(r => ['alto', 'muy_alto'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
+               <div className="glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-red-500/50 shadow-xl transition-all hover:-translate-y-1">
+                  <div className="w-1.5 absolute right-0 top-0 bottom-0 bg-red-500"></div>
+                  <span className="text-red-400 text-sm font-bold flex items-center gap-2 mb-3"><Target size={16}/> Casos Críticos (Alto)</span>
+                  <span className="text-4xl font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">{resultados.filter(r => ['alto', 'muy_alto'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
                </div>
-               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden border border-slate-700/60 shadow-lg">
-                  <div className="w-1 absolute right-0 top-0 bottom-0 bg-emerald-500"></div>
-                  <span className="text-emerald-300 text-sm flex items-center gap-1 mb-2">Casos Saludables (Bajo)</span>
-                  <span className="text-3xl font-bold text-emerald-400">{resultados.filter(r => ['bajo', 'sin_riesgo'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
+               <div className="glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-emerald-500/50 shadow-xl transition-all hover:-translate-y-1">
+                  <div className="w-1.5 absolute right-0 top-0 bottom-0 bg-emerald-500"></div>
+                  <span className="text-emerald-400 text-sm font-bold flex items-center gap-2 mb-3"><CheckCircle2 size={16}/> Riesgo Bajo / Sano</span>
+                  <span className="text-4xl font-black text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]">{resultados.filter(r => ['bajo', 'sin_riesgo'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
                </div>
-               <div className="glass-card p-1 rounded-xl bg-purple-900/10 hover:bg-purple-900/20 transition-colors border border-purple-500/50 shadow-lg shadow-purple-900/20">
-                  <button onClick={generarAnalisisIA} disabled={loadingAi} className="h-full w-full flex flex-col items-center justify-center py-3 text-purple-300">
-                     {loadingAi ? <Loader2 size={24} className="animate-spin mb-2" /> : <BrainCircuit size={28} className="mb-2 text-purple-400" />}
-                     <span className="font-bold text-sm tracking-wide">Interpretación IA de {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Todo'}</span>
+               <div className="glass-card rounded-2xl bg-gradient-to-br from-purple-900/30 to-indigo-900/30 hover:from-purple-900/40 hover:to-indigo-900/40 transition-all border border-purple-500/40 shadow-xl shadow-purple-900/20 hover:-translate-y-1 overflow-hidden group">
+                  <button onClick={generarAnalisisIA} disabled={loadingAi} className="h-full w-full flex flex-col items-center justify-center p-6 text-purple-300 relative">
+                     <div className="absolute inset-0 bg-purple-500/10 translate-y-[100%] group-hover:translate-y-0 transition-transform"></div>
+                     {loadingAi ? <Loader2 size={32} className="animate-spin mb-3 z-10" /> : <BrainCircuit size={40} className="mb-3 text-purple-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.6)] z-10 group-hover:scale-110 transition-transform" />}
+                     <span className="font-black text-sm md:text-base tracking-wide z-10 text-center leading-tight shadow-black drop-shadow-md">Análisis Clínico IA<br/><span className="text-xs font-medium opacity-80">(Todo el periodo)</span></span>
                   </button>
                </div>
             </div>
 
             {/* AI Report Zone */}
             {aiReport && (
-                <div className="bg-gradient-to-r from-purple-900/60 to-slate-900/60 border border-purple-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden backdrop-blur-md">
-                    <div className="absolute -top-4 -right-4 p-4 opacity-5 text-8xl rotate-12">🤖</div>
-                    <h3 className="text-purple-300 font-bold mb-3 flex items-center gap-2"><Bot size={20}/> Análisis Clínico Generado (Periodo: {selectedPeriodo})</h3>
-                    <div className="text-slate-200 leading-relaxed text-sm format-markdown" style={{ whiteSpace: 'pre-line' }}>
+                <div className="bg-gradient-to-r from-purple-900/60 to-slate-900/60 border-2 border-purple-500/40 rounded-[2rem] p-8 shadow-2xl relative overflow-hidden backdrop-blur-md mb-12">
+                    <div className="absolute -top-10 -right-10 p-10 opacity-5 text-9xl rotate-12 pointer-events-none">🤖</div>
+                    <h3 className="text-purple-300 font-black text-2xl mb-4 flex items-center gap-3"><Bot size={ ২৮}/> Análisis Clínico Generado <span className="text-sm font-medium bg-purple-500/20 px-3 py-1 rounded-full border border-purple-500/30">Periodo: {selectedPeriodo}</span></h3>
+                    <div className="text-slate-200 leading-relaxed text-base format-markdown bg-slate-900/40 p-6 rounded-2xl border border-white/5" style={{ whiteSpace: 'pre-line' }}>
                        {aiReport}
                     </div>
                 </div>
             )}
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 my-8">
-                <div className="glass-card p-6 rounded-2xl border border-slate-700/60 shadow-lg">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 mb-12 relative z-10 w-full">
+                <div className="glass-card p-8 rounded-[2rem] border border-slate-700/60 shadow-xl bg-slate-800/40 hover:border-sky-500/30 transition-colors">
                     <h3 className="text-white font-bold mb-6 text-sm">Riesgo Promedio por Área ({selectedPeriodo})</h3>
                     <div className="h-[300px] w-full text-xs">
                         <ResponsiveContainer width="100%" height="100%">
@@ -447,9 +448,9 @@ function ResultadosContent() {
                     </div>
                 </div>
 
-                <div className="glass-card p-6 rounded-2xl border border-slate-700/60 shadow-lg">
-                    <h3 className="text-white font-bold mb-6 text-sm">Matriz de Dominios Global ({selectedPeriodo})</h3>
-                    <div className="h-[300px] w-full text-xs flex justify-center">
+                <div className="glass-card p-8 rounded-[2rem] border border-slate-700/60 shadow-xl bg-slate-800/40 hover:border-purple-500/30 transition-colors">
+                    <h3 className="text-white font-black mb-6 text-lg tracking-tight">Matriz de Dominios Global <span className="text-slate-400 font-normal">({selectedPeriodo})</span></h3>
+                    <div className="h-[350px] w-full text-xs flex justify-center">
                         <ResponsiveContainer width="100%" height="100%">
                             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartDataRadar}>
                                 <PolarGrid stroke="rgba(255,255,255,0.05)" />
@@ -466,9 +467,9 @@ function ResultadosContent() {
             </div>
 
             {/* Evolucion Histórica Row */}
-            <div className="glass-card p-6 rounded-2xl border border-slate-700/60 shadow-lg mb-8">
-                <h3 className="text-white font-bold mb-2 text-sm">Evolución de Riesgo por Área (Histórico)</h3>
-                <p className="text-xs text-slate-400 mb-6">Muestra los promedios globales a través de los diversos periodos.</p>
+            <div className="glass-card p-8 rounded-[2rem] border border-slate-700/60 shadow-xl mb-12 bg-slate-800/40 w-full relative z-10 hover:border-indigo-500/30 transition-colors">
+                <h3 className="text-white font-black mb-2 text-xl tracking-tight">Evolución de Riesgo por Área (Histórico)</h3>
+                <p className="text-sm text-slate-400 mb-8 max-w-2xl">Muestra la progresión de los promedios globales de síntomas clínicos a través de los diversos periodos evaluados para esta organización.</p>
                 <div className="h-[350px] w-full text-xs">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartDataEvolucion} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
@@ -491,10 +492,10 @@ function ResultadosContent() {
             </div>
 
             {/* Individual Table */}
-            <div className="glass-card rounded-2xl border-white/10 overflow-hidden">
-               <div className="p-5 border-b border-white/10 flex justify-between items-center">
-                   <h3 className="text-white font-bold text-sm">Evaluaciones Tomadas en {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Todos los tiempos'}</h3>
-                   <span className="bg-slate-800 text-xs text-sky-400 px-3 py-1 rounded-full">{resultados.length} Registros</span>
+            <div className="glass-card rounded-[2rem] border border-slate-700/60 overflow-hidden shadow-2xl mb-12 w-full">
+               <div className="p-6 md:p-8 border-b border-slate-700/60 bg-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                   <h3 className="text-white font-black text-xl tracking-tight">Registro de Evaluaciones Individuales <span className="text-slate-400 font-medium text-base ml-2">({selectedPeriodo !== 'todos' ? selectedPeriodo : 'Todos los tiempos'})</span></h3>
+                   <span className="bg-sky-500/20 text-sm font-bold text-sky-400 px-4 py-2 rounded-xl border border-sky-500/30">{resultados.length} Registros Activos</span>
                </div>
                <div className="overflow-x-auto w-full">
                    <table className="w-full text-sm text-left">

@@ -10,7 +10,7 @@ import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
 import {
   collection, addDoc, updateDoc, deleteDoc, doc, query,
-  where, getDocs, serverTimestamp, Timestamp, getCountFromServer
+  where, getDocs, getDoc, serverTimestamp, Timestamp, getCountFromServer
 } from 'firebase/firestore';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────

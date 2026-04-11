@@ -3,7 +3,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { Camera, FileUp, Loader2, CheckCircle2, AlertCircle, Trash2, Building2, User, Save } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, query, where, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
+import { useAuth } from '@/lib/auth';
+import { collection, getDocs, addDoc, query, where, serverTimestamp, updateDoc, doc, getDoc, increment } from 'firebase/firestore';
 
 export default function EscanerAIPage() {
   const [photo, setPhoto] = useState<File | null>(null);
@@ -12,6 +13,7 @@ export default function EscanerAIPage() {
   const [results, setResults] = useState<Record<string, number> | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { user } = useAuth();
 
   // States para Asignación
   const [empresas, setEmpresas] = useState<{id: string, nombre: string}[]>([]);
@@ -105,9 +107,33 @@ export default function EscanerAIPage() {
       setError('Por favor selecciona un empleado para asignar estas respuestas.');
       return;
     }
+    if (!user) {
+      setError('No estás autenticado.');
+      return;
+    }
     setSaving(true);
     setError(null);
     try {
+      // 1. VERIFICAR LÍMITES DE BATERÍAS ANTES DE CALIFICAR/GUARDAR
+      let esIlimitado = false;
+      if (user.email === 'rankerize@gmail.com' || user.email?.endsWith('@rankerize.com')) {
+         esIlimitado = true;
+      }
+      
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      const plan = userDoc.exists() ? (userDoc.data().plan || 'free') : 'free';
+      const baterias_usadas = userDoc.exists() ? (userDoc.data().baterias_usadas || 0) : 0;
+      
+      if (plan === 'pro') esIlimitado = true;
+
+      const limit = plan === 'starter' ? 100 : 3;
+      
+      if (!esIlimitado && baterias_usadas >= limit) {
+         setError(`Límite alcanzado. Tu plan (${plan.toUpperCase()}) permite analizar ${limit} formularios como máximo. Actualiza a PRO o compra el plan Starter en Facturación.`);
+         setSaving(false);
+         return;
+      }
+
       const empleadoObj = empleados.find(e => e.id === selectedEmpleado);
       const empresaObj = empresas.find(e => e.id === selectedEmpresa);
       
@@ -127,6 +153,9 @@ export default function EscanerAIPage() {
 
       await addDoc(collection(db, 'resultados'), resultado);
       await updateDoc(doc(db, 'empleados', selectedEmpleado), { estadoBateria: 'completado' });
+
+      // Sumar batería consumida
+      await updateDoc(doc(db, 'users', user.uid), { baterias_usadas: increment(1) });
 
       setSuccessMsg(`Resultados asignados exitosamente a ${empleadoObj?.nombre}`);
       setTimeout(() => clear(), 3000); // Reset UI after 3s

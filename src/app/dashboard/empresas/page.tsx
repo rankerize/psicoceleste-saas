@@ -79,6 +79,10 @@ export default function EmpresasPage() {
   const [empleadosAgregados, setEmpleadosAgregados] = useState(0);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // CSV Preview state
+  type CsvRow = { nombre: string; cedula: string; cargo: string; area: string; email: string; telefono: string };
+  const [csvPreview, setCsvPreview] = useState<CsvRow[]>([]);
+
   const [editando, setEditando]     = useState<Empresa | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [saving, setSaving]         = useState(false);
@@ -183,59 +187,65 @@ export default function EmpresasPage() {
   };
 
   // ── Importar CSV Empleados ────────────────────────────────────────────────────
-  const onImportarCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const parseCSVToPreview = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !empresaReciente || !user) return;
+    if (!file) return;
+    setError('');
+    setSuccessMsg('');
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.trim().split('\n').slice(1); // Skip header
+      const rows: { nombre: string; cedula: string; cargo: string; area: string; email: string; telefono: string }[] = [];
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, '').toLowerCase());
+        const [nombre = '', apellido = '', cedula = '', cargo = '', area = '', email = '', telefono = ''] = cols;
+        const nombreComp = apellido ? `${nombre} ${apellido}`.trim() : nombre;
+        if (!cedula || !nombreComp) continue;
+        rows.push({ nombre: nombreComp, cedula, cargo, area, email, telefono });
+      }
+      setCsvPreview(rows);
+      if (rows.length === 0) setError('No se encontraron filas válidas en el CSV.');
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+  const confirmarImportCSV = async () => {
+    if (!empresaReciente || !user || csvPreview.length === 0) return;
     setCsvLoading(true);
     setError('');
     setSuccessMsg('');
-    
-    try {
-      const text = await file.text();
-      const lines = text.trim().split('\n').slice(1);
-      let imported = 0;
-      let failed = 0;
-      
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
-        if (cols.length < 2) { failed++; continue; }
-        const [nombre, apellido, cedula, cargo = '', area = ''] = cols;
-        const nombreComp = apellido ? `${nombre} ${apellido}`.trim() : nombre;
-        if (!cedula || !nombreComp) { failed++; continue; }
-        
-        try {
-          await addDoc(collection(db, 'empleados'), {
-            cedula, 
-            nombre: nombreComp, 
-            cargo,
-            tipoCargo: 'auxiliar', // Default
-            area, 
-            email: '', 
-            telefono: '',
-            empresaId: empresaReciente.id, 
-            psicologo: user.uid,
-            estadoBateria: 'pendiente',
-            creadoEn: serverTimestamp(),
-          });
-          imported++;
-        } catch { failed++; }
-      }
-      setEmpleadosAgregados(prev => prev + imported);
-      if (failed > 0) {
-         setError(`${imported} empleados importados, ${failed} fallaron (revisa el formato).`);
-      } else if (imported > 0) {
-         setSuccessMsg(`¡${imported} empleados importados correctamente!`);
-      } else {
-         setError('No se encontraron empleados válidos en el archivo.');
-      }
-      await cargarEmpresas();
-    } catch (err) {
-      setError('Error leyendo el archivo CSV.');
-    } finally {
-      setCsvLoading(false);
-      e.target.value = ''; // Reset input
+    let imported = 0;
+    let failed = 0;
+    for (const row of csvPreview) {
+      try {
+        await addDoc(collection(db, 'empleados'), {
+          cedula: row.cedula,
+          nombre: row.nombre,
+          cargo: row.cargo,
+          tipoCargo: 'auxiliar',
+          area: row.area,
+          email: row.email,
+          telefono: row.telefono,
+          empresaId: empresaReciente.id,
+          psicologo: user.uid,
+          estadoBateria: 'pendiente',
+          creadoEn: serverTimestamp(),
+        });
+        imported++;
+      } catch { failed++; }
     }
+    setCsvPreview([]);
+    setEmpleadosAgregados(prev => prev + imported);
+    if (failed > 0) {
+      setError(`${imported} importados, ${failed} fallaron (revisa el formato).`);
+    } else {
+      setSuccessMsg(`¡${imported} empleados importados correctamente!`);
+    }
+    await cargarEmpresas();
+    setCsvLoading(false);
   };
 
   const descargarPlantilla = () => {
@@ -591,37 +601,87 @@ export default function EmpresasPage() {
                    <p className="text-sm text-slate-400">Total empleados cargados: <span className="text-white font-bold">{empleadosAgregados}</span></p>
                  </div>
 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className={`grid gap-4 ${csvPreview.length > 0 ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'}`}>
                     {/* Carga por CSV */}
-                    <div className="glass-card p-6 border-dashed border-2 hover:border-violet-500/50 transition-colors text-center group">
-                      <div className="w-12 h-12 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                        <FileText className="text-violet-400" size={24} />
+                    <div className="glass-card p-6 border-dashed border-2 hover:border-violet-500/50 transition-colors group">
+                      {csvPreview.length === 0 ? (
+                        <div className="text-center">
+                          <div className="w-12 h-12 bg-violet-500/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                            <FileText className="text-violet-400" size={24} />
+                          </div>
+                          <h4 className="text-white font-medium mb-2">Subida masiva por CSV</h4>
+                          <p className="text-xs text-slate-400 mb-6">
+                            Sube un archivo .csv con: Nombre, Apellido, Cédula, Cargo, Área.
+                          </p>
+                          <label className="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full text-sm py-2 px-4 rounded-xl">
+                            <Upload size={15} /> Seleccionar Archivo
+                            <input type="file" accept=".csv" className="hidden" onChange={parseCSVToPreview} />
+                          </label>
+                          <button type="button" onClick={descargarPlantilla} className="text-xs text-sky-400 hover:text-sky-300 mt-4 flex items-center justify-center gap-1 w-full transition-colors">
+                            <Download size={13} /> Descargar plantilla base
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="flex items-center justify-between mb-4">
+                            <div>
+                              <h4 className="text-white font-semibold text-sm">Previsualizar y confirmar importación</h4>
+                              <p className="text-xs text-slate-400 mt-0.5">{csvPreview.length} empleados encontrados · Edita cualquier celda antes de importar</p>
+                            </div>
+                            <button onClick={() => setCsvPreview([])} className="text-slate-500 hover:text-red-400 transition-colors text-xl leading-none px-2">✕</button>
+                          </div>
+                          <div className="overflow-x-auto rounded-xl border border-white/10 mb-4" style={{ maxHeight: "280px", overflowY: "auto" }}>
+                            <table className="w-full text-xs">
+                              <thead className="bg-slate-800/90 sticky top-0 z-10">
+                                <tr>
+                                  {["Nombre completo","Cédula","Cargo","Área","Email","Teléfono"].map(h => (
+                                    <th key={h} className="px-3 py-2 text-slate-400 font-semibold text-left whitespace-nowrap">{h}</th>
+                                  ))}
+                                </tr>
+                              </thead>
+                              <tbody className="divide-y divide-white/5">
+                                {csvPreview.map((row, i) => (
+                                  <tr key={i} className="hover:bg-white/5 transition-colors">
+                                    {(["nombre","cedula","cargo","area","email","telefono"] as const).map(field => (
+                                      <td key={field} className="px-2 py-1">
+                                        <input
+                                          value={row[field]}
+                                          onChange={e => {
+                                            const updated = [...csvPreview];
+                                            updated[i] = { ...updated[i], [field]: e.target.value.toLowerCase() };
+                                            setCsvPreview(updated);
+                                          }}
+                                          className="w-full bg-transparent text-white border-b border-transparent hover:border-slate-600 focus:border-sky-500 focus:outline-none py-0.5 px-1 transition-colors"
+                                          style={{ minWidth: "90px" }}
+                                        />
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                          <div className="flex gap-3">
+                            <button onClick={() => setCsvPreview([])} className="btn-secondary flex-1 text-sm py-2">Cancelar</button>
+                            <button onClick={confirmarImportCSV} disabled={csvLoading} className="btn-primary flex-1 text-sm py-2 flex items-center justify-center gap-2">
+                              {csvLoading ? <><Loader2 size={14} className="animate-spin" /> Importando...</> : <><Check size={14} /> Confirmar y subir {csvPreview.length} empleados</>}
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    {csvPreview.length === 0 && (
+                      <div className="glass-card p-6 flex flex-col justify-center items-center text-center">
+                        <Users className="text-slate-500 mb-4" size={32} />
+                        <h4 className="text-white font-medium mb-2">Carga Manual</h4>
+                        <p className="text-xs text-slate-400 mb-6">
+                          Agrega empleados formulario por formulario, ideal para equipos pequeños o ajustes de último minuto.
+                        </p>
+                        <a href={`/dashboard/empresas/${empresaReciente?.id}`} className="btn-secondary text-sm w-full py-2 rounded-xl">
+                          Ir al Panel de Empleados
+                        </a>
                       </div>
-                      <h4 className="text-white font-medium mb-2">Subida masiva por CSV</h4>
-                      <p className="text-xs text-slate-400 mb-6 line-clamp-2">
-                        Sube un archivo .csv con: Nombre, Apellido, Cédula, Cargo, Área.
-                      </p>
-                      
-                      <label className="btn-primary flex items-center justify-center gap-2 cursor-pointer w-full text-sm py-2 px-4 rounded-xl">
-                        {csvLoading ? <><Loader2 size={15} className="animate-spin" /> Procesando...</> : <><Upload size={15} /> Seleccionar Archivo</>}
-                        <input type="file" accept=".csv" className="hidden" onChange={onImportarCSV} disabled={csvLoading} />
-                      </label>
-                      <button type="button" onClick={descargarPlantilla} className="text-xs text-sky-400 hover:text-sky-300 mt-4 flex items-center justify-center gap-1 w-full transition-colors">
-                        <Download size={13} /> Descargar plantilla base
-                      </button>
-                    </div>
-
-                    {/* Carga Manual (Aviso) */}
-                    <div className="glass-card p-6 flex flex-col justify-center items-center text-center">
-                       <Users className="text-slate-500 mb-4" size={32} />
-                       <h4 className="text-white font-medium mb-2">Carga Manual</h4>
-                       <p className="text-xs text-slate-400 mb-6">
-                         Agrega empleados formulario por formulario, ideal para equipos pequeños o ajustes de último minuto.
-                       </p>
-                       <a href={`/dashboard/empresas/${empresaReciente?.id}`} className="btn-secondary text-sm w-full py-2 rounded-xl">
-                         Ir al Panel de Empleados
-                       </a>
-                    </div>
+                    )}
                  </div>
 
                  <div className="mt-6 text-center">

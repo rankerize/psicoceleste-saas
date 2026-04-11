@@ -9,8 +9,8 @@ export default function LandingPage() {
           {/* Logo */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
             <img 
-              src="/logo.jpg" 
-              alt="PsicoLab Logo" 
+              src="/logo-psicolab.png" 
+              alt="Psicolab Logo" 
               style={{ height: '36px', width: 'auto', borderRadius: '4px' }}
             />
           </div>
@@ -205,7 +205,7 @@ export default function LandingPage() {
           <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>⚖️</div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: '700', color: 'white', marginBottom: '0.75rem' }}>Cumplimiento normativo garantizado</h2>
           <p style={{ color: '#64748b', lineHeight: '1.7', maxWidth: '560px', margin: '0 auto 1.5rem' }}>
-            PsicoCeleste implementa el modelo oficial del Ministerio de Trabajo según la{' '}
+            Psicolab implementa el modelo oficial del Ministerio de Trabajo según la{' '}
             <strong style={{ color: '#38bdf8' }}>Resolución 2404 de 2019</strong> y la{' '}
             <strong style={{ color: '#38bdf8' }}>Resolución 2646 de 2008</strong>.
             Las respuestas individuales están protegidas bajo reserva por el psicólogo aplicador.
@@ -221,7 +221,7 @@ export default function LandingPage() {
       {/* Footer */}
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '2rem 1.5rem', textAlign: 'center' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <img src="/logo.jpg" alt="PsicoLab" style={{ height: '30px', width: 'auto', borderRadius: '4px', filter: 'grayscale(100%) brightness(150%)' }} />
+          <img src="/logo-psicolab.png" alt="Psicolab" style={{ height: '30px', width: 'auto', borderRadius: '4px', filter: 'grayscale(100%) brightness(150%)' }} />
         </div>
         <p style={{ color: '#475569', fontSize: '0.8rem' }}>
           Software especializado para la Batería de Riesgo Psicosocial · Colombia · 2025

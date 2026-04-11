@@ -35,7 +35,7 @@ function SuscripcionContent() {
           plan: planId,
           userId: user.uid,
           email: user.email,
-          nombre: user.displayName || 'Usuario PsicoCeleste'
+          nombre: user.displayName || 'Usuario Psicolab'
         })
       });
       

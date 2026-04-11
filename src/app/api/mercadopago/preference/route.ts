@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     
     if (plan === 'starter') {
       price = 50000;
-      title = 'Plan Starter - 100 Baterías PsicoCeleste';
+      title = 'Plan Starter - 100 Baterías Psicolab';
     } else if (plan === 'pro') {
       price = 150000;
       title = 'Plan Pro - Baterías Ilimitadas (1 Mes)';

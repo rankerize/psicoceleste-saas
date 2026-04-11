@@ -72,8 +72,7 @@ function RegisterForm() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
-            <div style={{ width: '44px', height: '44px', borderRadius: '12px', background: 'linear-gradient(135deg, #0ea5e9, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '22px' }}>🩵</div>
-            <span style={{ fontSize: '1.3rem', fontWeight: '800', color: 'white' }}>PsicoCeleste</span>
+            <img src="/logo-psicolab.png" alt="Psicolab" style={{ height: '44px', width: 'auto', borderRadius: '8px' }} />
           </Link>
         </div>
 

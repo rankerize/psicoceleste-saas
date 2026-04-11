@@ -1,6 +1,6 @@
 /**
  * Template PDF Oficial — Batería de Riesgo Psicosocial
- * PsicoCeleste — Resolución 2646/2008 — Batería MinTrabajo 2010
+ * Psicolab — Resolución 2646/2008 — Batería MinTrabajo 2010
  */
 import React from 'react';
 import {
@@ -479,9 +479,9 @@ export function ReportePDF({ data }: { data: PDFData }) {
   return (
     <Document
       title={`Perfil Riesgo Psicosocial — ${data.empleado.nombre}`}
-      author="PsicoCeleste"
-      subject="Batería de Riesgo Psicosocial — MinTrabajo 2010"
-      creator="PsicoCeleste SaaS"
+      author="Psicolab"
+      subject="Informe de Batería de Riesgo Psicosocial"
+      creator="Psicolab SaaS"
     >
 
       {/* ═══════════════════════════════════════════════════════
@@ -496,7 +496,7 @@ export function ReportePDF({ data }: { data: PDFData }) {
               <Text style={{ color: C.celeste, fontSize: 14, fontFamily: 'Helvetica-Bold' }}>🩵</Text>
             </View>
             <View>
-              <Text style={s.logoText}>PsicoCeleste</Text>
+              <Text style={s.logoText}>Psicolab</Text>
               <Text style={s.logoSub}>Batería de Riesgo Psicosocial</Text>
             </View>
           </View>
@@ -604,7 +604,7 @@ export function ReportePDF({ data }: { data: PDFData }) {
         {/* Footer */}
         <View style={s.footer} fixed>
           <Text style={s.footerText}>
-            PsicoCeleste SaaS — Res. 2646/2008 — Batería MinTrabajo 2010 — Página 1
+            Psicolab SaaS — Res. 2646/2008 — Batería MinTrabajo 2010 — Página 1
           </Text>
           <Text style={s.pageNum}>{data.empleado.nombre}</Text>
         </View>
@@ -618,7 +618,7 @@ export function ReportePDF({ data }: { data: PDFData }) {
         {/* Mini header */}
         <View style={[s.header, { marginBottom: 10 }]}>
           <Text style={{ fontFamily: 'Helvetica-Bold', fontSize: 11, color: C.navy2 }}>
-            🩵 PsicoCeleste — Continuación del Informe
+            🩵 Psicolab — Continuación del Informe
           </Text>
           <Text style={s.headerDate}>{data.empleado.nombre} — {now}</Text>
         </View>
@@ -750,14 +750,14 @@ export function ReportePDF({ data }: { data: PDFData }) {
             Evaluación realizada conforme a la Resolución 2646 de 2008 del Ministerio de la Protección Social y la Batería de Instrumentos
             para la Evaluación de Factores de Riesgo Psicosocial (2010). Los resultados deben ser interpretados por un psicólogo(a)
             con especialización en salud ocupacional y licencia vigente de prestación de servicios en psicología ocupacional.
-            Generado por PsicoCeleste SaaS — psicoceleste.com
+            Generado por Psicolab SaaS — psicolab.com
           </Text>
         </View>
 
         {/* Footer */}
         <View style={s.footer} fixed>
           <Text style={s.footerText}>
-            PsicoCeleste SaaS — Res. 2646/2008 — Batería MinTrabajo 2010 — Página 2 de 2
+            Psicolab SaaS — Res. 2646/2008 — Batería MinTrabajo 2010 — Página 2 de 2
           </Text>
           <Text style={s.pageNum}>{data.empleado.nombre}</Text>
         </View>

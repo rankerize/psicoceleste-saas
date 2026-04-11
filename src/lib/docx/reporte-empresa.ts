@@ -24,7 +24,7 @@ export async function generarReporteWord(data: CompanyDocxData): Promise<Blob> {
       alignment: AlignmentType.CENTER,
       children: [
         new TextRun({
-          text: 'PsicoCeleste SaaS',
+          text: 'Psicolab SaaS',
           bold: true,
           size: 48, // 24pt
           color: primaryColor,
@@ -184,7 +184,7 @@ export async function generarReporteWord(data: CompanyDocxData): Promise<Blob> {
   ];
 
   const doc = new Document({
-    creator: 'PsicoCeleste SaaS',
+    creator: 'Psicolab SaaS',
     title: `Informe Corporativo - ${data.empresaNombre}`,
     description: 'Diagnóstico Psicosocial Clínico y Organizacional',
     sections: [

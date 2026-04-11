@@ -1,6 +1,6 @@
 /**
  * DATOS SEMILLA — 3 Empleados de Prueba
- * PsicoCeleste SaaS — Batería de Riesgo Psicosocial Colombia
+ * Psicolab SaaS — Batería de Riesgo Psicosocial Colombia
  *
  * Perfiles:
  *  1. Andrea Gómez     — Jefatura (Forma A) — Riesgo ALTO (burnout ejecutivo)

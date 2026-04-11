@@ -331,10 +331,9 @@ function BateriaContent() {
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-500 to-violet-600 flex items-center justify-center mx-auto mb-4 text-3xl shadow-2xl shadow-sky-500/30">
-              🩵
+            <div className="flex justify-center mb-4">
+              <img src="/logo-psicolab.png" alt="Psicolab Logo" className="h-[75px] w-auto rounded-lg" />
             </div>
-            <h1 className="text-2xl font-bold text-white">PsicoCeleste</h1>
             <p className="text-slate-400 text-sm mt-1">Batería de Riesgo Psicosocial</p>
           </div>
 

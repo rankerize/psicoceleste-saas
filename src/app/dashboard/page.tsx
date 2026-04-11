@@ -112,7 +112,7 @@ export default function DashboardPage() {
           Bienvenida, {user?.displayName?.split(' ')[0] ?? 'Psicóloga'} 👋
         </h1>
         <p className="text-slate-400 mt-1">
-          Resumen de tu consultorio — PsicoCeleste
+          Resumen de tu consultorio — Psicolab
         </p>
       </div>
 

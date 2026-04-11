@@ -28,8 +28,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div style={{ padding: '1.5rem 1.25rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
           <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', textDecoration: 'none' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'linear-gradient(135deg, #0ea5e9, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px' }}>🩵</div>
-            <span style={{ fontSize: '1rem', fontWeight: '700', color: 'white' }}>PsicoCeleste</span>
+            <img src="/logo-psicolab.png" alt="Psicolab Logo" style={{ height: '32px', width: 'auto', borderRadius: '4px' }} />
           </Link>
         </div>
 
@@ -90,7 +89,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
         }}>
           <div style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
-            Bienvenida a PsicoCeleste 👋
+            Bienvenida a Psicolab 👋
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{

@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Reglas Globales: Por defecto, absolutamente todo está denegado.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Colección Múltiples Inquilinos: Usuarios/Psicólogos
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Colección: Empresas (Deben pertenecer al psicólogo autenticado)
+    match /empresas/{empresaId} {
+      // Para leer o escribir, el usuario debe estar logeado y el campo 'psicologo' de la base de datos debe ser su UID
+      allow read, update, delete: if request.auth != null && resource.data.psicologo == request.auth.uid;
+      // Para crear, debe venir obligatoriamente con el psicologo = auth uid
+      allow create: if request.auth != null && request.resource.data.psicologo == request.auth.uid;
+    }
+
+    // Colección: Empleados (Misma regla estricta)
+    match /empleados/{empleadoId} {
+      allow read, update, delete: if request.auth != null && resource.data.psicologo == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.psicologo == request.auth.uid;
+    }
+
+    // Colección: Resultados e Historicos
+    match /resultados/{resultadoId} {
+      allow read, update, delete: if request.auth != null && resource.data.psicologo == request.auth.uid;
+      allow create: if request.auth != null && request.resource.data.psicologo == request.auth.uid;
+    }
+    
+    // ATENCIÓN: Las respuestas de batería (test público) requieren un diseño especial porque el empleado no está logeado.
+    // Nosotros solo leeremos via Servidor/Backend o permitiremos leer un empleado si se tiene su cedula mediante filtros estrictos, pero aquí protegeremos su escritura.
+    // IMPORTANTE: Dado que esto puede romper el examen público, asegúrese de usar server-actions (firebase-admin) para guardar los tests tomados por URLs públicas.
+  }
+}

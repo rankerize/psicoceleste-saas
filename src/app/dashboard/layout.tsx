@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.push('/auth/login');
   };
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--navy-900)' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--bg-main)' }}>
       {/* Sidebar */}
       <aside className="sidebar" style={{ position: 'fixed', top: 0, left: 0, bottom: 0, display: 'flex', flexDirection: 'column' }}>
         {/* Logo */}
@@ -41,6 +41,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <span>{label}</span>
             </Link>
           ))}
+          {/* BOTÓN ADMIN EXCLUSIVO */}
+          {(user?.email?.endsWith('@rankerize.com') || user?.email === 'admin@rankerize.com') && (
+            <Link href="/dashboard/admin" className="sidebar-item" style={{ marginTop: '0.5rem', background: 'rgba(124, 58, 237, 0.05)', color: '#7c3aed', fontWeight: 600 }}>
+              <span style={{ fontSize: '16px' }}>👑</span>
+              <span>Panel Admin Rankerize</span>
+            </Link>
+          )}
         </nav>
 
         {/* User logout */}
@@ -61,7 +68,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Top bar */}
         <header style={{
           position: 'sticky', top: 0, zIndex: 10,
-          background: 'rgba(10, 15, 30, 0.9)', backdropFilter: 'blur(20px)',
+          background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(20px)',
           borderBottom: '1px solid rgba(255,255,255,0.06)',
           padding: '1rem 2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between'
         }}>

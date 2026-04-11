@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
+import { collection, query, getDocs, doc, getDoc, where, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useAuth } from '@/lib/auth';
 import { Loader2, Download, Bot, Target, Users, LayoutDashboard, BrainCircuit, Calendar, Database, FileText } from 'lucide-react';
+import { generarReporteWord } from '@/lib/docx/reporte-empresa';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
@@ -25,6 +28,7 @@ export default function ResultadosJerarquicos() {
   const [aiReport, setAiReport] = useState<string | null>(null);
   const [loadingAi, setLoadingAi] = useState(false);
   const [simulating, setSimulating] = useState(false);
+  const [generandoDoc, setGenerandoDoc] = useState(false);
 
   // Datos para gráficas
   const [chartDataArea, setChartDataArea] = useState<any[]>([]);
@@ -156,8 +160,39 @@ export default function ResultadosJerarquicos() {
       }
   };
 
-  const generarDocxMock = () => {
-      alert(`Exportando informe de ${selectedPeriodo}...`);
+  const generarDocxMock = async () => {
+      if (!selectedEmpresa || !user) return;
+      setGenerandoDoc(true);
+      
+      try {
+         const empActual = empresas.find(e => e.id === selectedEmpresa);
+         const data = {
+             empresaNombre: empActual?.nombre ?? 'Empresa',
+             psicologoNombre: user?.displayName || user?.email || 'Evaluador',
+             periodo: selectedPeriodo !== 'todos' ? selectedPeriodo : 'Histórico Global',
+             fecha: new Date().toLocaleDateString('es-CO'),
+             aiReport: aiReport,
+             estadisticas: {
+                 totalEvaluados: resultados.length,
+                 riesgoAlto: resultados.filter(r => ['alto', 'muy_alto'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length,
+                 riesgoBajo: resultados.filter(r => ['bajo', 'sin_riesgo'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length,
+             },
+             areas: chartDataArea
+         };
+
+         const blob = await generarReporteWord(data);
+         const url = URL.createObjectURL(blob);
+         const a = document.createElement('a');
+         a.href = url;
+         a.download = `Reporte-Psicosocial-${(empActual?.nombre || 'General').replace(/\s+/g, '-')}-${selectedPeriodo}.docx`;
+         a.click();
+         URL.revokeObjectURL(url);
+      } catch (err: any) {
+         console.error('Error docx:', err);
+         alert('Error al generar archivo Word: ' + err.message);
+      } finally {
+         setGenerandoDoc(false);
+      }
   };
 
   // --- BOTÓN DE SIMULACIÓN DE DATOS (MOCK) ---
@@ -239,13 +274,13 @@ export default function ResultadosJerarquicos() {
            <select 
               value={selectedEmpresa}
               onChange={e => { setSelectedEmpresa(e.target.value); setSelectedPeriodo('todos'); }}
-              className="bg-slate-900 border border-slate-700 text-white text-sm rounded-xl px-4 py-2"
+              className="bg-slate-800/80 border border-slate-700 text-white text-sm rounded-xl px-4 py-2 shadow-lg"
            >
               <option value="">1. Eligir Empresa</option>
               {empresas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
            </select>
 
-           <div className="flex items-center bg-slate-900 border border-slate-700 rounded-xl px-2">
+           <div className="flex items-center bg-slate-800/80 shadow-lg border border-slate-700 rounded-xl px-2">
               <Calendar size={14} className="text-slate-400 ml-2" />
               <select 
                   value={selectedPeriodo}
@@ -258,8 +293,9 @@ export default function ResultadosJerarquicos() {
               </select>
            </div>
 
-           <button onClick={generarDocxMock} className="btn-primary text-sm flex items-center gap-2">
-              <Download size={14} /> Exportar Word
+           <button onClick={generarDocxMock} disabled={generandoDoc} className="btn-primary text-sm flex items-center gap-2">
+              {generandoDoc ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
+              {generandoDoc ? 'Generando...' : 'Exportar Word'}
            </button>
         </div>
       </div>
@@ -279,7 +315,7 @@ export default function ResultadosJerarquicos() {
                       <Database size={18} />
                       <p>No se encontraron resultados previos en esta empresa. ¿Quieres generar una simulación de **Enero** y **Marzo**?</p>
                    </div>
-                   <button onClick={handleSimularHistorial} className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-4 py-2 rounded-lg text-sm transition-colors shadow-lg">
+                   <button onClick={handleSimularHistorial} className="bg-amber-500 hover:bg-amber-600 text-white font-bold px-4 py-2 rounded-lg text-sm transition-colors shadow-lg">
                        ➕ Inyectar Datos Demo
                    </button>
                 </div>
@@ -287,23 +323,23 @@ export default function ResultadosJerarquicos() {
 
             {/* KPI Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-               <div className="glass-card p-5 rounded-xl flex flex-col shadow-md relative overflow-hidden">
+               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden">
                   <div className="w-1 absolute right-0 top-0 bottom-0 bg-sky-500"></div>
                   <span className="text-slate-400 text-sm flex items-center gap-1 mb-2"><Users size={14}/> Evaluaciones en el Periodo</span>
                   <span className="text-3xl font-bold text-white">{resultados.length}</span>
-                  <span className="text-xs text-slate-500 mt-1">Periodo: {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Histórico global'}</span>
+                  <span className="text-xs text-slate-400 mt-1">Periodo: {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Histórico global'}</span>
                </div>
-               <div className="glass-card p-5 rounded-xl flex flex-col shadow-md border border-red-500/20 relative overflow-hidden">
+               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden">
                   <div className="w-1 absolute right-0 top-0 bottom-0 bg-red-500"></div>
                   <span className="text-red-300 text-sm flex items-center gap-1 mb-2"><Target size={14}/> Casos Críticos (Alto)</span>
                   <span className="text-3xl font-bold text-red-500">{resultados.filter(r => ['alto', 'muy_alto'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
                </div>
-               <div className="glass-card p-5 rounded-xl flex flex-col shadow-md border border-emerald-500/20 relative overflow-hidden">
+               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden">
                   <div className="w-1 absolute right-0 top-0 bottom-0 bg-emerald-500"></div>
                   <span className="text-emerald-300 text-sm flex items-center gap-1 mb-2">Casos Saludables (Bajo)</span>
                   <span className="text-3xl font-bold text-emerald-400">{resultados.filter(r => ['bajo', 'sin_riesgo'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
                </div>
-               <div className="glass-card p-1 rounded-xl shadow-md border border-purple-500/30 bg-purple-900/10 hover:bg-purple-900/20 transition-colors">
+               <div className="glass-card p-1 rounded-xl bg-purple-900/10 hover:bg-purple-900/20 transition-colors border border-purple-500/30">
                   <button onClick={generarAnalisisIA} disabled={loadingAi} className="h-full w-full flex flex-col items-center justify-center py-3 text-purple-300">
                      {loadingAi ? <Loader2 size={24} className="animate-spin mb-2" /> : <BrainCircuit size={28} className="mb-2 text-purple-400" />}
                      <span className="font-bold text-sm tracking-wide">Interpretación IA de {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Todo'}</span>
@@ -313,7 +349,7 @@ export default function ResultadosJerarquicos() {
 
             {/* AI Report Zone */}
             {aiReport && (
-                <div className="bg-gradient-to-r from-purple-900/40 to-slate-900 border border-purple-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden backdrop-blur-md">
+                <div className="bg-gradient-to-r from-purple-900/60 to-slate-900/60 border border-purple-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden backdrop-blur-md">
                     <div className="absolute -top-4 -right-4 p-4 opacity-5 text-8xl rotate-12">🤖</div>
                     <h3 className="text-purple-300 font-bold mb-3 flex items-center gap-2"><Bot size={20}/> Análisis Clínico Generado (Periodo: {selectedPeriodo})</h3>
                     <div className="text-slate-200 leading-relaxed text-sm format-markdown" style={{ whiteSpace: 'pre-line' }}>
@@ -324,16 +360,16 @@ export default function ResultadosJerarquicos() {
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="glass-card p-6 rounded-2xl border-white/5">
+                <div className="glass-card p-6 rounded-2xl">
                     <h3 className="text-white font-bold mb-6 text-sm">Riesgo Promedio por Área ({selectedPeriodo})</h3>
                     <div className="h-[300px] w-full text-xs">
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={chartDataArea} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                                <XAxis dataKey="name" stroke="#94a3b8" />
-                                <YAxis stroke="#94a3b8" domain={[0, 100]} />
+                                <XAxis dataKey="name" stroke="#475569" tick={{ fontSize: 12, fontWeight: 500 }} />
+                                <YAxis stroke="#475569" domain={[0, 100]} />
                                 <RechartsTooltip 
-                                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#fff' }}
+                                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff',  }}
                                 />
                                 <Legend />
                                 <Bar dataKey="IntralaboralPromedio" fill="#0ea5e9" name="Riesgo Intralaboral" radius={[4, 4, 0, 0]} />
@@ -343,17 +379,17 @@ export default function ResultadosJerarquicos() {
                     </div>
                 </div>
 
-                <div className="glass-card p-6 rounded-2xl border-white/5">
+                <div className="glass-card p-6 rounded-2xl">
                     <h3 className="text-white font-bold mb-6 text-sm">Matriz de Dominios Global ({selectedPeriodo})</h3>
                     <div className="h-[300px] w-full text-xs flex justify-center">
                         <ResponsiveContainer width="100%" height="100%">
                             <RadarChart cx="50%" cy="50%" outerRadius="70%" data={chartDataRadar}>
-                                <PolarGrid stroke="rgba(255,255,255,0.1)" />
-                                <PolarAngleAxis dataKey="subject" stroke="#94a3b8" tick={{ fontSize: 10 }} />
+                                <PolarGrid stroke="rgba(255,255,255,0.05)" />
+                                <PolarAngleAxis dataKey="subject" stroke="#475569" tick={{ fontSize: 11, fontWeight: 600 }} />
                                 <PolarRadiusAxis angle={30} domain={[0, 100]} stroke="transparent" />
-                                <Radar name="Puntaje de Riesgo" dataKey="A" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.4} />
+                                <Radar name="Puntaje de Riesgo" dataKey="A" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.6} />
                                 <RechartsTooltip 
-                                    contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '8px', color: '#fff' }}
+                                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff',  }}
                                 />
                             </RadarChart>
                         </ResponsiveContainer>
@@ -362,14 +398,14 @@ export default function ResultadosJerarquicos() {
             </div>
 
             {/* Individual Table */}
-            <div className="glass-card rounded-2xl border-white/5 overflow-hidden">
-               <div className="p-5 border-b border-white/5 flex justify-between items-center">
+            <div className="glass-card rounded-2xl border-white/10 overflow-hidden">
+               <div className="p-5 border-b border-white/10 flex justify-between items-center">
                    <h3 className="text-white font-bold text-sm">Evaluaciones Tomadas en {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Todos los tiempos'}</h3>
                    <span className="bg-slate-800 text-xs text-sky-400 px-3 py-1 rounded-full">{resultados.length} Registros</span>
                </div>
                <div className="overflow-x-auto w-full">
                    <table className="w-full text-sm text-left">
-                       <thead className="bg-slate-900/50 text-xs text-slate-400 uppercase">
+                       <thead className="bg-slate-800/40 text-xs text-slate-400 uppercase">
                            <tr>
                                <th className="py-4 px-5">Cédula</th>
                                <th className="py-4 px-5">Empleado Info</th>
@@ -380,7 +416,7 @@ export default function ResultadosJerarquicos() {
                        </thead>
                        <tbody>
                            {resultados.length === 0 ? (
-                               <tr><td colSpan={5} className="py-8 text-center text-slate-500">No hay datos en este periodo</td></tr>
+                               <tr><td colSpan={5} className="py-8 text-center text-slate-400">No hay datos en este periodo</td></tr>
                            ) : (
                                resultados.map(res => {
                                    const emp = empleados.find(e => e.cedula === res.cedula) || { nombre: 'Desc.', cargo: 'Desc.', area: 'Desc.' };
@@ -395,7 +431,7 @@ export default function ResultadosJerarquicos() {
                                            <td className="py-3 px-5 text-slate-300 font-mono text-xs whitespace-nowrap">{res.cedula}</td>
                                            <td className="py-3 px-5">
                                               <div className="font-bold text-white mb-0.5">{emp.nombre}</div>
-                                              <div className="flex gap-2 text-xs text-slate-500">
+                                              <div className="flex gap-2 text-xs text-slate-400">
                                                   <span className="text-sky-400">{emp.cargo}</span> • <span>{emp.area}</span>
                                               </div>
                                            </td>
@@ -419,7 +455,7 @@ export default function ResultadosJerarquicos() {
                                                       <FileText size={16} />
                                                   </a>
                                                ) : (
-                                                  <span className="text-xs text-slate-600">N/A</span>
+                                                  <span className="text-xs text-slate-300">N/A</span>
                                                )}
                                            </td>
                                        </tr>
@@ -433,7 +469,7 @@ export default function ResultadosJerarquicos() {
 
          </div>
       ) : (
-         <div className="h-64 flex flex-col items-center justify-center text-slate-600 glass-card">
+         <div className="h-64 flex flex-col items-center justify-center text-slate-300 glass-card">
             <LayoutDashboard size={48} className="mb-4 opacity-50" />
             <p>Selecciona una empresa en el filtro superior para interactuar.</p>
          </div>

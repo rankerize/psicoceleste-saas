@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   Users, Plus, Search, Edit2, Trash2, Upload, ChevronLeft,
   Hash, Briefcase, Phone, Mail, AlertCircle, Loader2, X, Check,
-  ClipboardList, FileText, Building2, UserCheck, Download, Activity
+  ClipboardList, FileText, Building2, UserCheck, Download, Activity, Link2
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth';
@@ -190,6 +190,12 @@ export default function EmpleadosPage() {
      document.body.appendChild(link);
      link.click();
      document.body.removeChild(link);
+  };
+
+  const copiarEnlaceBateria = (cedula: string) => {
+    const enlace = `${window.location.origin}/bateria/${cedula}?empresaId=${empresaId}`;
+    navigator.clipboard.writeText(enlace);
+    alert('Enlace copiado al portapapeles:\n' + enlace);
   };
 
   // ── Filtrado ──────────────────────────────────────────────────────────────────
@@ -407,14 +413,23 @@ export default function EmpleadosPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           {emp.estadoBateria !== 'completado' && (
-                            <Link
-                              href={`/bateria/${emp.cedula}?empresaId=${empresaId}&empleadoId=${emp.id}`}
-                              id={`btn-bateria-${emp.id}`}
-                              className="p-1.5 rounded-lg hover:bg-emerald-500/20 text-emerald-400 transition-colors"
-                              title="Aplicar batería"
-                            >
-                              <ClipboardList size={14} />
-                            </Link>
+                            <>
+                              <button
+                                onClick={() => copiarEnlaceBateria(emp.cedula)}
+                                className="p-1.5 rounded-lg hover:bg-violet-500/20 text-violet-400 transition-colors"
+                                title="Copiar enlace para que el empleado responda"
+                              >
+                                <Link2 size={14} />
+                              </button>
+                              <Link
+                                href={`/bateria/${emp.cedula}?empresaId=${empresaId}&empleadoId=${emp.id}`}
+                                id={`btn-bateria-${emp.id}`}
+                                className="p-1.5 rounded-lg hover:bg-emerald-500/20 text-emerald-400 transition-colors"
+                                title="Aplicar batería manualmente desde este equipo"
+                              >
+                                <ClipboardList size={14} />
+                              </Link>
+                            </>
                           )}
                           <button
                             id={`btn-editar-emp-${emp.id}`}

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { MercadoPagoConfig, Payment } from 'mercadopago';
-import { db } from '@/lib/firebase';
-import { doc, updateDoc, getDoc } from 'firebase/firestore';
+import { adminDb } from '@/lib/firebase-admin';
 
 const MP_ACCESS_TOKEN = process.env.MERCADOPAGO_ACCESS_TOKEN || '';
 
@@ -53,22 +52,22 @@ export async function POST(req: Request) {
 
        // Actualizar en Firestore el perfil de la empresa/usuario
        try {
-         const userRef = doc(db, 'users', userId);
-         const userSnap = await getDoc(userRef);
+         const userRef = adminDb.collection('users').doc(userId);
+         const userSnap = await userRef.get();
 
-         if (userSnap.exists()) {
+         if (userSnap.exists) {
            const userData = userSnap.data();
            
            if (planComprado === 'starter') {
              // Sumamos 100 baterías al límite actual
-             const limiteActual = typeof userData.baterias_limite === 'number' ? userData.baterias_limite : 0;
-             await updateDoc(userRef, {
+             const limiteActual = typeof userData?.baterias_limite === 'number' ? userData.baterias_limite : 0;
+             await userRef.update({
                plan: 'starter',
                baterias_limite: limiteActual + 100
              });
              console.log(`Usuario ${userId} actualizado a plan starter (+100 baterias)`);
            } else if (planComprado === 'pro') {
-             await updateDoc(userRef, {
+             await userRef.update({
                plan: 'pro',
                baterias_limite: 'ilimitado'
              });

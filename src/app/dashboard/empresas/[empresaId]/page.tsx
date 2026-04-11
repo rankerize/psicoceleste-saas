@@ -358,7 +358,7 @@ export default function EmpleadosPage() {
             placeholder="Buscar por nombre, cédula o cargo..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="input-field pl-10 w-full"
+            className="input-field !pl-10 w-full"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -548,7 +548,7 @@ export default function EmpleadosPage() {
                       required
                       value={form.cedula}
                       onChange={e => setForm(f => ({ ...f, cedula: e.target.value }))}
-                      className="input-field w-full pl-9"
+                      className="input-field w-full !pl-10"
                       placeholder="1234567890"
                     />
                   </div>
@@ -593,7 +593,7 @@ export default function EmpleadosPage() {
                       type="text"
                       value={form.cargo}
                       onChange={e => setForm(f => ({ ...f, cargo: e.target.value }))}
-                      className="input-field w-full pl-9"
+                      className="input-field w-full !pl-10"
                       placeholder="Analista de RRHH"
                     />
                   </div>
@@ -622,7 +622,7 @@ export default function EmpleadosPage() {
                       type="email"
                       value={form.email}
                       onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                      className="input-field w-full pl-9"
+                      className="input-field w-full !pl-10"
                       placeholder="empleado@empresa.com"
                     />
                   </div>
@@ -638,7 +638,7 @@ export default function EmpleadosPage() {
                       type="tel"
                       value={form.telefono}
                       onChange={e => setForm(f => ({ ...f, telefono: e.target.value }))}
-                      className="input-field w-full pl-9"
+                      className="input-field w-full !pl-10"
                       placeholder="+57 300 000 0000"
                     />
                   </div>

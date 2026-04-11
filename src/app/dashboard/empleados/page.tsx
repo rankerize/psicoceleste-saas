@@ -144,7 +144,7 @@ export default function EmpleadosDirectorioPage() {
             placeholder="Buscar por nombre, cédula o cargo..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="input-field pl-9 w-full"
+            className="input-field !pl-10 w-full"
           />
         </div>
         

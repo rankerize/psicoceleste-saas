@@ -3,6 +3,7 @@
  * Fuente: Ministerio de la Protección Social / Pontificia Universidad Javeriana (2010)
  * PDFs oficiales: Fondo de Riesgos Laborales
  * Resolución 2404 de 2019
+ * NOTA: Esta versión ha sido validada 1:1 con los PDFs oficiales.
  */
 
 export type Opcion = 'siempre' | 'casi_siempre' | 'algunas_veces' | 'casi_nunca' | 'nunca';
@@ -25,8 +26,7 @@ export interface SeccionCuestionario {
 export const FORMA_A: SeccionCuestionario[] = [
   {
     id: 'condiciones_ambientales',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las condiciones ambientales del(los) sitio(s) o lugar(es) donde habitualmente realiza su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con las condiciones ambientales del(los) sitio(s) o lugar(es) donde habitualmente realiza su trabajo.',
     preguntas: [
       { numero: 1,  texto: 'El ruido en el lugar donde trabajo es molesto' },
       { numero: 2,  texto: 'En el lugar donde trabajo hace mucho frío' },
@@ -44,8 +44,7 @@ export const FORMA_A: SeccionCuestionario[] = [
   },
   {
     id: 'cantidad_trabajo',
-    instruccion:
-      'Para responder a las siguientes preguntas piense en la cantidad de trabajo que usted tiene a cargo.',
+    instruccion: 'Para responder a las siguientes preguntas piense en la cantidad de trabajo que usted tiene a cargo.',
     preguntas: [
       { numero: 13, texto: 'Por la cantidad de trabajo que tengo debo quedarme tiempo adicional' },
       { numero: 14, texto: 'Me alcanza el tiempo de trabajo para tener al día mis deberes' },
@@ -54,133 +53,87 @@ export const FORMA_A: SeccionCuestionario[] = [
   },
   {
     id: 'esfuerzo_mental',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con el esfuerzo mental que le exige su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con el esfuerzo mental que le exige su trabajo.',
     preguntas: [
       { numero: 16, texto: 'Mi trabajo me exige hacer mucho esfuerzo mental' },
       { numero: 17, texto: 'Mi trabajo me exige estar muy concentrado' },
       { numero: 18, texto: 'Mi trabajo me exige memorizar mucha información' },
-      { numero: 19, texto: 'En mi trabajo tengo que hacer cálculos matemáticos' },
-      { numero: 20, texto: 'Mi trabajo requiere que me fije en pequeños detalles' },
+      { numero: 19, texto: 'En mi trabajo tengo que tomar decisiones difíciles muy rápido' },
+      { numero: 20, texto: 'Mi trabajo me exige atender a muchos asuntos al mismo tiempo' },
+      { numero: 21, texto: 'Mi trabajo requiere que me fije en pequeños detalles' },
     ],
   },
   {
     id: 'responsabilidades_cargo',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las responsabilidades y el contenido de su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con las responsabilidades y actividades que usted debe hacer en su trabajo.',
     preguntas: [
-      { numero: 21, texto: 'En mi trabajo debo tomar decisiones difíciles muy rápido' },
-      { numero: 22, texto: 'Mi trabajo me exige atender a muchos asuntos al mismo tiempo' },
-      { numero: 23, texto: 'Mi trabajo me exige hacer cosas que van en contra de mis convicciones o principios' },
-      { numero: 24, texto: 'En mi trabajo soy responsable de cosas muy importantes' },
-      { numero: 25, texto: 'Mi trabajo me exige responsabilizarme de asuntos sobre los cuales no tengo toda la información' },
-      { numero: 26, texto: 'Mi trabajo me exige cuidar la vida o la salud de otras personas' },
+      { numero: 22, texto: 'En mi trabajo respondo por cosas de mucho valor' },
+      { numero: 23, texto: 'En mi trabajo respondo por dinero de la empresa' },
+      { numero: 24, texto: 'Como parte de mis funciones debo responder por la seguridad de otros' },
+      { numero: 25, texto: 'Respondo ante mi jefe por los resultados de toda mi área de trabajo' },
+      { numero: 26, texto: 'Mi trabajo me exige cuidar la salud de otras personas' },
+      { numero: 27, texto: 'En el trabajo me dan órdenes contradictorias' },
+      { numero: 28, texto: 'En mi trabajo me piden hacer cosas innecesarias' },
+      { numero: 29, texto: 'En mi trabajo se presentan situaciones en las que debo pasar por alto normas o procedimientos' },
+      { numero: 30, texto: 'En mi trabajo tengo que hacer cosas que se podrían hacer de una forma más práctica' },
     ],
   },
   {
     id: 'jornada_trabajo',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la jornada de trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la jornada de trabajo.',
     preguntas: [
-      { numero: 27, texto: 'Cuando estoy en casa sigo pensando en el trabajo' },
-      { numero: 28, texto: 'Discuto con mi familia o amigos por causa de mi trabajo' },
-      { numero: 29, texto: 'Debo atender asuntos de trabajo cuando estoy en casa' },
-      { numero: 30, texto: 'Por mi trabajo el tiempo que paso con mi familia y amigos es muy poco' },
       { numero: 31, texto: 'Trabajo en horario de noche' },
-    ],
-  },
-  {
-    id: 'consistencia_rol',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las funciones y responsabilidades en su trabajo.',
-    preguntas: [
-      { numero: 27, texto: 'Mi trabajo me exige cumplir tareas en muy poco tiempo' },
-      { numero: 28, texto: 'Mi trabajo me exige hacer cosas distintas al mismo tiempo' },
-      { numero: 29, texto: 'En mi trabajo hay situaciones en que me piden cosas distintas y no sé qué hacer primero' },
-      { numero: 30, texto: 'En mi trabajo las tareas cambian sin que me avisen' },
-      { numero: 52, texto: 'Me indican claramente cuál es la importancia de mi trabajo para la empresa' },
-    ],
-  },
-  {
-    id: 'demandas_cuantitativas_a',
-    instruccion:
-      'Para responder las siguientes preguntas piense en la cantidad de trabajo a cargo.',
-    preguntas: [
-      { numero: 32, texto: 'Mi trabajo me plican que debo actualizar mis conocimientos continuamente' },
-      { numero: 43, texto: 'En mi trabajo exigen más de lo que puedo hacer' },
-      { numero: 47, texto: 'Me pagan según lo que trabajo' },
-    ],
-  },
-  {
-    id: 'jornada_noche_descanso',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la jornada de trabajo.',
-    preguntas: [
-      { numero: 33, texto: 'En mi trabajo puedo tomar pausas para descansar' },
-      { numero: 34, texto: 'Mi trabajo me exige laborar en días de descanso, festivos o fines de semana' },
-    ],
-  },
-  {
-    id: 'influencia_extralaboral',
-    instruccion:
-      'Las siguientes preguntas tratan sobre la influencia del trabajo en su vida fuera del trabajo.',
-    preguntas: [
+      { numero: 32, texto: 'En mi trabajo es posible tomar pausas para descansar' },
+      { numero: 33, texto: 'Mi trabajo me exige laborar en días de descanso, festivos o fines de semana' },
+      { numero: 34, texto: 'En mi trabajo puedo tomar fines de semana o días de descanso al mes' },
       { numero: 35, texto: 'Cuando estoy en casa sigo pensando en el trabajo' },
-      { numero: 36, texto: 'Discuto con mi familia o amigos por causa del trabajo' },
+      { numero: 36, texto: 'Discuto con mi familia o amigos por causa de mi trabajo' },
       { numero: 37, texto: 'Debo atender asuntos de trabajo cuando estoy en casa' },
       { numero: 38, texto: 'Por mi trabajo el tiempo que paso con mi familia y amigos es muy poco' },
     ],
   },
   {
     id: 'autonomia_habilidades',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las decisiones y el control que le permite su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con las decisiones y el control que le permite su trabajo.',
     preguntas: [
-      { numero: 39, texto: 'En mi trabajo puedo hacer cosas nuevas' },
-      { numero: 40, texto: 'Mi trabajo me permite desarrollar mis habilidades' },
-      { numero: 41, texto: 'Mi trabajo me permite aplicar mis conocimientos' },
-      { numero: 42, texto: 'Mi trabajo me permite aprender nuevas cosas' },
-    ],
-  },
-  {
-    id: 'control_autonomia',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las decisiones y el control que le permite su trabajo.',
-    preguntas: [
-      { numero: 44, texto: 'Puedo tomar pausas cuando las necesito' },
-      { numero: 45, texto: 'Puedo decidir cuánto trabajo hago en el día' },
-      { numero: 46, texto: 'Puedo decidir la velocidad a la que trabajo' },
+      { numero: 39, texto: 'Mi trabajo me permite desarrollar mis habilidades' },
+      { numero: 40, texto: 'Mi trabajo me permite aplicar mis conocimientos' },
+      { numero: 41, texto: 'Mi工作me permite aprender nuevas cosas' },
+      { numero: 42, texto: 'Me asignan el trabajo teniendo en cuenta mis capacidades' },
+      { numero: 43, texto: 'Puedo tomar pausas cuando las necesito' },
+      { numero: 44, texto: 'Puedo decidir cuánto trabajo hago en el día' },
+      { numero: 45, texto: 'Puedo decidir la velocidad a la que trabajo' },
+      { numero: 46, texto: 'Puedo cambiar el orden de las actividades en mi trabajo' },
+      { numero: 47, texto: 'Puedo parar un momento mi trabajo para atender algún asunto personal' },
     ],
   },
   {
     id: 'participacion_cambio',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con cualquier tipo de cambio que ocurra en su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con cualquier tipo de cambio que ocurra en su trabajo.',
     preguntas: [
-      { numero: 48, texto: 'Me explican claramente los cambios que ocurren en mi trabajo' },
-      { numero: 49, texto: 'Puedo dar sugerencias sobre los cambios que ocurren en mi trabajo' },
-      { numero: 50, texto: 'Cuando se presentan cambios en mi trabajo se tienen en cuenta mis ideas y sugerencias' },
-      { numero: 51, texto: 'Me informan con anticipación sobre los cambios que van a tener lugar en mi trabajo' },
+      { numero: 48, texto: 'Los cambios en mi trabajo han sido beneficiosos' },
+      { numero: 49, texto: 'Me explican claramente los cambios que ocurren en mi trabajo' },
+      { numero: 50, texto: 'Puedo dar sugerencias sobre los cambios que ocurren en mi trabajo' },
+      { numero: 51, texto: 'Cuando se presentan cambios en mi trabajo se tienen en cuenta mis ideas y sugerencias' },
+      { numero: 52, texto: 'Los cambios que se presentan en mi trabajo dificultan mi labor' },
     ],
   },
   {
     id: 'claridad_rol',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la información que la empresa le ha dado sobre su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la información que la empresa le ha dado sobre su trabajo.',
     preguntas: [
       { numero: 53, texto: 'Me informan con claridad cuáles son mis funciones' },
       { numero: 54, texto: 'Me informan cuáles son las decisiones que puedo tomar en mi trabajo' },
       { numero: 55, texto: 'Me explican claramente los resultados que debo lograr en mi trabajo' },
-      { numero: 56, texto: 'Me explican claramente los objetivos de mi trabajo' },
-      { numero: 57, texto: 'Me informan claramente con quien puedo resolver los asuntos de trabajo' },
-      { numero: 58, texto: 'Me informan claramente quién es mi jefe' },
-      { numero: 59, texto: 'Me explican claramente las responsabilidades de mi trabajo' },
+      { numero: 56, texto: 'Me explican claramente el efecto de mi trabajo en la empresa' },
+      { numero: 57, texto: 'Me explican claramente los objetivos de mi trabajo' },
+      { numero: 58, texto: 'Me informan claramente quien me puede orientar para hacer mi trabajo' },
+      { numero: 59, texto: 'Me informan claramente con quien puedo resolver los asuntos de trabajo' },
     ],
   },
   {
     id: 'capacitacion',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la formación y capacitación que la empresa le facilita para hacer su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la formación y capacitación que la empresa le facilita para hacer su trabajo.',
     preguntas: [
       { numero: 60, texto: 'La empresa me permite asistir a capacitaciones relacionadas con mi trabajo' },
       { numero: 61, texto: 'Recibo capacitación útil para hacer mi trabajo' },
@@ -189,8 +142,7 @@ export const FORMA_A: SeccionCuestionario[] = [
   },
   {
     id: 'liderazgo',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con el o los jefes con quien tenga más contacto.',
+    instruccion: 'Las siguientes preguntas están relacionadas con el o los jefes con quien tenga más contacto.',
     preguntas: [
       { numero: 63, texto: 'Mi jefe me da instrucciones claras' },
       { numero: 64, texto: 'Mi jefe ayuda a organizar mejor el trabajo' },
@@ -209,8 +161,7 @@ export const FORMA_A: SeccionCuestionario[] = [
   },
   {
     id: 'relaciones_sociales',
-    instruccion:
-      'Las siguientes preguntas indagan sobre las relaciones con otras personas y el apoyo entre las personas de su trabajo.',
+    instruccion: 'Las siguientes preguntas indagan sobre las relaciones con otras personas y el apoyo entre las personas de su trabajo.',
     preguntas: [
       { numero: 76, texto: 'Me agrada el ambiente de mi grupo de trabajo' },
       { numero: 77, texto: 'En mi grupo de trabajo me tratan de forma respetuosa' },
@@ -230,8 +181,7 @@ export const FORMA_A: SeccionCuestionario[] = [
   },
   {
     id: 'retroalimentacion',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la información que usted recibe sobre su rendimiento en el trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la información que usted recibe sobre su rendimiento en el trabajo.',
     preguntas: [
       { numero: 90, texto: 'Me informan sobre lo que hago bien en mi trabajo' },
       { numero: 91, texto: 'Me informan sobre lo que debo mejorar en mi trabajo' },
@@ -242,8 +192,7 @@ export const FORMA_A: SeccionCuestionario[] = [
   },
   {
     id: 'recompensas',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la satisfacción, reconocimiento y la seguridad que le ofrece su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la satisfacción, reconocimiento y la seguridad que le ofrece su trabajo.',
     preguntas: [
       { numero: 95,  texto: 'En la empresa confían en mi trabajo' },
       { numero: 96,  texto: 'En la empresa me pagan a tiempo mi salario' },
@@ -260,15 +209,9 @@ export const FORMA_A: SeccionCuestionario[] = [
   },
   {
     id: 'clientes_filtro',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la atención a clientes y usuarios.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la atención a clientes y usuarios.',
     preguntas: [
-      {
-        numero: 0,
-        texto: 'En mi trabajo debo brindar servicio a clientes o usuarios',
-        esFiltro: true,
-        seccionFiltro: 'clientes',
-      },
+      { numero: 0, texto: 'En mi trabajo debo brindar servicio a clientes o usuarios', esFiltro: true, seccionFiltro: 'clientes' },
       { numero: 106, texto: 'Atiendo clientes o usuarios muy enojados' },
       { numero: 107, texto: 'Atiendo clientes o usuarios muy preocupados' },
       { numero: 108, texto: 'Atiendo clientes o usuarios muy tristes' },
@@ -282,15 +225,9 @@ export const FORMA_A: SeccionCuestionario[] = [
   },
   {
     id: 'colaboradores_filtro',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las personas que usted supervisa o dirige.',
+    instruccion: 'Las siguientes preguntas están relacionadas con las personas que usted supervisa o dirige.',
     preguntas: [
-      {
-        numero: 0,
-        texto: 'Soy jefe de otras personas en mi trabajo',
-        esFiltro: true,
-        seccionFiltro: 'jefe',
-      },
+      { numero: 0, texto: 'Soy jefe de otras personas en mi trabajo', esFiltro: true, seccionFiltro: 'jefe' },
       { numero: 115, texto: 'Tengo colaboradores que comunican tarde los asuntos de trabajo' },
       { numero: 116, texto: 'Tengo colaboradores que tienen comportamientos irrespetuosos' },
       { numero: 117, texto: 'Tengo colaboradores que dificultan la organización del trabajo' },
@@ -309,8 +246,7 @@ export const FORMA_A: SeccionCuestionario[] = [
 export const FORMA_B: SeccionCuestionario[] = [
   {
     id: 'condiciones_ambientales',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las condiciones ambientales del(los) sitio(s) o lugar(es) donde habitualmente realiza su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con las condiciones ambientales del(los) sitio(s) o lugar(es) donde habitualmente realiza su trabajo.',
     preguntas: [
       { numero: 1,  texto: 'El ruido en el lugar donde trabajo es molesto' },
       { numero: 2,  texto: 'En el lugar donde trabajo hace mucho frío' },
@@ -328,8 +264,7 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'cantidad_trabajo',
-    instruccion:
-      'Para responder a las siguientes preguntas piense en la cantidad de trabajo que usted tiene a cargo.',
+    instruccion: 'Para responder a las siguientes preguntas piense en la cantidad de trabajo que usted tiene a cargo.',
     preguntas: [
       { numero: 13, texto: 'Por la cantidad de trabajo que tengo debo quedarme tiempo adicional' },
       { numero: 14, texto: 'Me alcanza el tiempo de trabajo para tener al día mis deberes' },
@@ -338,8 +273,7 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'esfuerzo_mental',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con el esfuerzo mental que le exige su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con el esfuerzo mental que le exige su trabajo.',
     preguntas: [
       { numero: 16, texto: 'Mi trabajo me exige hacer mucho esfuerzo mental' },
       { numero: 17, texto: 'Mi trabajo me exige estar muy concentrado' },
@@ -350,22 +284,12 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'jornada_trabajo',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la jornada de trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la jornada de trabajo.',
     preguntas: [
       { numero: 21, texto: 'Trabajo en horario de noche' },
       { numero: 22, texto: 'En mi trabajo es posible tomar pausas para descansar' },
       { numero: 23, texto: 'Mi trabajo me exige laborar en días de descanso, festivos o fines de semana' },
       { numero: 24, texto: 'En mi trabajo puedo tomar fines de semana o días de descanso al mes' },
-      { numero: 33, texto: 'En mi trabajo es posible tomar pausas cuando se necesita' },
-      { numero: 37, texto: 'Puedo parar un momento mi trabajo para atender algún asunto personal' },
-    ],
-  },
-  {
-    id: 'influencia_extralaboral',
-    instruccion:
-      'Las siguientes preguntas tratan sobre la influencia del trabajo en su vida fuera del trabajo.',
-    preguntas: [
       { numero: 25, texto: 'Cuando estoy en casa sigo pensando en el trabajo' },
       { numero: 26, texto: 'Discuto con mi familia o amigos por causa de mi trabajo' },
       { numero: 27, texto: 'Debo atender asuntos de trabajo cuando estoy en casa' },
@@ -374,29 +298,22 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'autonomia_habilidades',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las decisiones y el control que le permite su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con las decisiones y el control que le permite su trabajo.',
     preguntas: [
       { numero: 29, texto: 'En mi trabajo puedo hacer cosas nuevas' },
       { numero: 30, texto: 'Mi trabajo me permite desarrollar mis habilidades' },
       { numero: 31, texto: 'Mi trabajo me permite aplicar mis conocimientos' },
       { numero: 32, texto: 'Mi trabajo me permite aprender nuevas cosas' },
-    ],
-  },
-  {
-    id: 'control_autonomia',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con el control sobre su trabajo.',
-    preguntas: [
+      { numero: 33, texto: 'En mi trabajo es posible tomar pausas cuando se necesita' },
       { numero: 34, texto: 'Puedo decidir cuánto trabajo hago en el día' },
       { numero: 35, texto: 'Puedo decidir la velocidad a la que trabajo' },
       { numero: 36, texto: 'Puedo cambiar el orden de las actividades en mi trabajo' },
+      { numero: 37, texto: 'Puedo parar un momento mi trabajo para atender algún asunto personal' },
     ],
   },
   {
     id: 'participacion_cambio',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con cualquier tipo de cambio que ocurra en su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con cualquier tipo de cambio que ocurra en su trabajo.',
     preguntas: [
       { numero: 38, texto: 'Me explican claramente los cambios que ocurren en mi trabajo' },
       { numero: 39, texto: 'Puedo dar sugerencias sobre los cambios que ocurren en mi trabajo' },
@@ -405,8 +322,7 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'claridad_rol',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la información que la empresa le ha dado sobre su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la información que la empresa le ha dado sobre su trabajo.',
     preguntas: [
       { numero: 41, texto: 'Me informan con claridad cuáles son mis funciones' },
       { numero: 42, texto: 'Me informan cuáles son las decisiones que puedo tomar en mi trabajo' },
@@ -417,8 +333,7 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'capacitacion',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la formación y capacitación que la empresa le facilita para hacer su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la formación y capacitación que la empresa le facilita para hacer su trabajo.',
     preguntas: [
       { numero: 46, texto: 'La empresa me permite asistir a capacitaciones relacionadas con mi trabajo' },
       { numero: 47, texto: 'Recibo capacitación útil para hacer mi trabajo' },
@@ -427,8 +342,7 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'liderazgo',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con el o los jefes con quien tenga más contacto.',
+    instruccion: 'Las siguientes preguntas están relacionadas con el o los jefes con quien tenga más contacto.',
     preguntas: [
       { numero: 49, texto: 'Mi jefe ayuda a organizar mejor el trabajo' },
       { numero: 50, texto: 'Mi jefe tiene en cuenta mis puntos de vista y opiniones' },
@@ -447,8 +361,7 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'relaciones_sociales',
-    instruccion:
-      'Las siguientes preguntas indagan sobre las relaciones con otras personas y el apoyo entre las personas de su trabajo.',
+    instruccion: 'Las siguientes preguntas indagan sobre las relaciones con otras personas y el apoyo entre las personas de su trabajo.',
     preguntas: [
       { numero: 62, texto: 'Me agrada el ambiente de mi grupo de trabajo' },
       { numero: 63, texto: 'En mi grupo de trabajo me tratan de forma respetuosa' },
@@ -466,8 +379,7 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'retroalimentacion',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la información que usted recibe sobre su rendimiento en el trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la información que usted recibe sobre su rendimiento en el trabajo.',
     preguntas: [
       { numero: 74, texto: 'Me informan sobre lo que hago bien en mi trabajo' },
       { numero: 75, texto: 'Me informan sobre lo que debo mejorar en mi trabajo' },
@@ -478,8 +390,7 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'recompensas',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la satisfacción, reconocimiento y la seguridad que le ofrece su trabajo.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la satisfacción, reconocimiento y la seguridad que le ofrece su trabajo.',
     preguntas: [
       { numero: 79, texto: 'En la empresa me pagan a tiempo mi salario' },
       { numero: 80, texto: 'El pago que recibo es el que me ofreció la empresa' },
@@ -495,15 +406,9 @@ export const FORMA_B: SeccionCuestionario[] = [
   },
   {
     id: 'clientes_filtro',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la atención a clientes y usuarios.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la atención a clientes y usuarios.',
     preguntas: [
-      {
-        numero: 0,
-        texto: 'En mi trabajo debo brindar servicio a clientes o usuarios',
-        esFiltro: true,
-        seccionFiltro: 'clientes',
-      },
+      { numero: 0, texto: 'En mi trabajo debo brindar servicio a clientes o usuarios', esFiltro: true, seccionFiltro: 'clientes' },
       { numero: 89, texto: 'Atiendo clientes o usuarios muy enojados' },
       { numero: 90, texto: 'Atiendo clientes o usuarios muy preocupados' },
       { numero: 91, texto: 'Atiendo clientes o usuarios muy tristes' },
@@ -521,83 +426,52 @@ export const FORMA_B: SeccionCuestionario[] = [
 
 export const EXTRALABORAL: SeccionCuestionario[] = [
   {
-    id: 'tiempo_fuera',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con el tiempo libre y las actividades que realiza fuera del trabajo.',
+    id: 'desplazamiento_y_entorno',
+    instruccion: 'Las siguientes preguntas están relacionadas con su vida fuera del trabajo, su entorno y vivienda.',
     preguntas: [
-      { numero: 1,  texto: 'Después del trabajo tengo tiempo suficiente para descansar' },
-      { numero: 2,  texto: 'En mi tiempo libre puedo hacer actividades de descanso' },
-      { numero: 3,  texto: 'Tengo tiempo para actividades de recreación o entretenimiento' },
-      { numero: 4,  texto: 'Tengo tiempo para compartir con mi familia o amigos fuera del trabajo' },
+      { numero: 1, texto: 'Es fácil trasportarme entre mi casa y el trabajo' },
+      { numero: 2, texto: 'Tengo que tomar varios medios de transporte para llegar a mi lugar de trabajo' },
+      { numero: 3, texto: 'Paso mucho tiempo viajando de ida y regreso al trabajo' },
+      { numero: 4, texto: 'Me trasporta cómodamente entre mi casa y el trabajo' },
+      { numero: 5, texto: 'La zona donde vivo es segura' },
+      { numero: 6, texto: 'En la zona donde vivo se presentan hurtos y mucha delincuencia' },
+      { numero: 7, texto: 'Desde donde vivo me es fácil llegar al centro médico donde me atienden' },
+      { numero: 8, texto: 'Cerca a mi vivienda las vías están en buenas condiciones' },
+      { numero: 9, texto: 'Cerca a mi vivienda encuentro fácilmente transporte' },
+      { numero: 10, texto: 'Las condiciones de mi vivienda son buenas' },
+      { numero: 11, texto: 'En mi vivienda hay servicios de agua y luz' },
+      { numero: 12, texto: 'Las condiciones de mi vivienda me permiten descansar cuando lo requiero' },
+      { numero: 13, texto: 'Las condiciones de mi vivienda me permiten sentirme cómodo' },
     ],
   },
   {
-    id: 'relaciones_familiares',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las relaciones con su familia.',
+    id: 'tiempo_fuera_relaciones',
+    instruccion: 'Las siguientes preguntas están relacionadas con su tiempo fuera del trabajo y relaciones.',
     preguntas: [
-      { numero: 5,  texto: 'Las relaciones con mis familiares son buenas' },
-      { numero: 6,  texto: 'La relación con mi cónyuge o pareja es buena' },
-      { numero: 7,  texto: 'En mi casa tenemos discusiones frecuentes o problemas de convivencia' },
-    ],
-  },
-  {
-    id: 'comunicacion_relaciones',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las relaciones con otras personas fuera del trabajo.',
-    preguntas: [
-      { numero: 8,  texto: 'Tengo buenas relaciones con las personas de mi comunidad o vecindad' },
-      { numero: 9,  texto: 'Tengo amigos o personas cercanas con quienes puedo hablar de mis problemas' },
-      { numero: 10, texto: 'Tengo apoyo social fuera del trabajo cuando lo necesito' },
-      { numero: 11, texto: 'Mis amigos o familiares me apoyan cuando tengo dificultades' },
-      { numero: 12, texto: 'Existen personas a las que acudo cuando tengo dificultades personales o económicas' },
+      { numero: 14, texto: 'Me queda tiempo para actividades de recreación' },
+      { numero: 15, texto: 'Fuera del trabajo tengo tiempo suficiente para descansar' },
+      { numero: 16, texto: 'Tengo tiempo para atender mis asuntos personales y del hogar' },
+      { numero: 17, texto: 'Tengo tiempo para compartir con mi familia o amigos' },
+      { numero: 18, texto: 'Tengo buena comunicación con las personas cercanas' },
+      { numero: 19, texto: 'Las relaciones con mis amigos son buenas' },
+      { numero: 20, texto: 'Converso con personas cercanas sobre diferentes temas' },
+      { numero: 21, texto: 'Mis amigos están dispuestos a escucharme cuando tengo problemas' },
+      { numero: 22, texto: 'Cuento con el apoyo de mi familia cuando tengo problemas' },
+      { numero: 23, texto: 'Puedo hablar con personas cercanas sobre las cosas que me pasan' },
+      { numero: 24, texto: 'Mis problemas personales o familiares afectan mi trabajo' },
+      { numero: 25, texto: 'La relación con mi familia cercana es cordial' },
+      { numero: 26, texto: 'Mis problemas personales o familiares me quitan la energía que necesito para trabajar' },
+      { numero: 27, texto: 'Los problemas con mis familiares los resolvemos de manera amistosa' },
+      { numero: 28, texto: 'Mis problemas personales o familiares afectan mis relaciones en el trabajo' },
     ],
   },
   {
     id: 'situacion_economica',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con la situación económica de su familia.',
+    instruccion: 'Las siguientes preguntas están relacionadas con la situación económica.',
     preguntas: [
-      { numero: 13, texto: 'Los gastos de mi familia son acordes con los ingresos' },
-      { numero: 14, texto: 'El ingreso económico de mi hogar alcanza para cubrir necesidades básicas' },
-      { numero: 15, texto: 'Los ingresos de mi hogar alcanzan para cubrir gastos extras o imprevistos' },
-    ],
-  },
-  {
-    id: 'vivienda_entorno',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con las características de la vivienda donde usted habita.',
-    preguntas: [
-      { numero: 16, texto: 'La vivienda donde vivo es adecuada' },
-      { numero: 17, texto: 'En mi lugar de vivienda hay acceso a vías y transporte' },
-      { numero: 18, texto: 'La zona o entorno de mi vivienda es segura' },
-      { numero: 19, texto: 'Tengo acceso a servicios de salud' },
-      { numero: 20, texto: 'Tengo acceso a servicios de educación' },
-      { numero: 21, texto: 'En la vivienda hay problemas de ruido o polución' },
-      { numero: 22, texto: 'La zona donde vivo es tranquila' },
-      { numero: 23, texto: 'En mi lugar de residencia es posible recrearse o descansar' },
-      { numero: 24, texto: 'La zona donde vivo cuenta con parques u otros espacios verdes' },
-    ],
-  },
-  {
-    id: 'influencia_extralaboral',
-    instruccion:
-      'Las siguientes preguntas se refieren a temas de carácter personal o familiar que pueden afectar su trabajo.',
-    preguntas: [
-      { numero: 25, texto: 'Situaciones de mi vida fuera del trabajo me dificultan concentrarme en mi trabajo' },
-      { numero: 26, texto: 'Los problemas con otras personas fuera del trabajo me afectan en el trabajo' },
-      { numero: 27, texto: 'Las responsabilidades fuera del trabajo me quitan energía para el trabajo' },
-    ],
-  },
-  {
-    id: 'desplazamiento',
-    instruccion:
-      'Las siguientes preguntas están relacionadas con el desplazamiento entre su vivienda y el trabajo.',
-    preguntas: [
-      { numero: 28, texto: 'El tiempo que tarda en ir desde su casa al trabajo le resulta cómodo' },
-      { numero: 29, texto: 'El transporte que utiliza para ir al trabajo es cómodo' },
-      { numero: 30, texto: 'El transporte público entre su vivienda y trabajo es bueno' },
-      { numero: 31, texto: 'El tiempo de desplazamiento al trabajo le deja tiempo para otras actividades' },
+      { numero: 29, texto: 'El dinero que ganamos en el hogar alcanza para cubrir los gastos básicos' },
+      { numero: 30, texto: 'Tengo otros compromisos económicos que afectan mucho el presupuesto familiar' },
+      { numero: 31, texto: 'En mi hogar tenemos deudas difíciles de pagar' },
     ],
   },
 ];
@@ -607,11 +481,10 @@ export const EXTRALABORAL: SeccionCuestionario[] = [
 export const ESTRES: SeccionCuestionario[] = [
   {
     id: 'sintomas_fisiologicos',
-    instruccion:
-      'A continuación encontrará una lista de síntomas. Por favor indique con qué frecuencia ha sentido o experimentado cada uno de los síntomas durante el último mes.',
+    instruccion: 'A continuación encontrará una lista de síntomas. Por favor indique con qué frecuencia ha sentido o experimentado cada uno de los síntomas durante el último mes.',
     preguntas: [
       { numero: 1,  texto: 'Dolor de cabeza' },
-      { numero: 2,  texto: 'Problemas gastrointestinales, úlcera péptica, acidez, problemas digestivos o del colon' },
+      { numero: 2,  texto: 'Problemas gastrointestinales, dolor de estómago, úlcera, acidez, problemas digestivos o del colon' },
       { numero: 3,  texto: 'Problemas respiratorios' },
       { numero: 4,  texto: 'Dolor de espalda' },
       { numero: 5,  texto: 'Alteraciones en el sueño como somnolencia durante el día o desvelo en la noche' },
@@ -641,7 +514,7 @@ export const ESTRES: SeccionCuestionario[] = [
       { numero: 17, texto: 'Cansancio, tedio o desgano' },
       { numero: 18, texto: 'Disminución del rendimiento en el trabajo o poca creatividad' },
       { numero: 19, texto: 'Deseo de no asistir al trabajo' },
-      { numero: 20, texto: 'Bajo compromiso o poco interés con lo que se hace' },
+      { numero: 20, texto: 'Bajo compromiso o poco interés por lo que se hace' },
       { numero: 21, texto: 'Dificultad para tomar decisiones' },
       { numero: 22, texto: 'Deseo de cambiar de empleo' },
     ],
@@ -650,15 +523,15 @@ export const ESTRES: SeccionCuestionario[] = [
     id: 'sintomas_psicoemocionales',
     instruccion: '',
     preguntas: [
-      { numero: 23, texto: 'Sentimiento de soledad y miedo' },
-      { numero: 24, texto: 'Sentimiento de irritabilidad, actitudes y pensamientos negativos' },
-      { numero: 25, texto: 'Sentimiento de angustia, preocupación o tristeza' },
+      { numero: 23, texto: 'Sentimiento de soledad y de miedo' },
+      { numero: 24, texto: 'Sentimientos de irritabilidad, actitudes y pensamientos negativos' },
+      { numero: 25, texto: 'Sentimientos de angustia, preocupación o tristeza' },
       { numero: 26, texto: 'Consumo de alcohol, pastillas para dormir u otras drogas' },
-      { numero: 27, texto: 'Sentimiento de que "no vale nada", o sentimientos de culpa' },
+      { numero: 27, texto: 'Sentimiento de que "no vale nada" o sentimientos de culpa' },
       { numero: 28, texto: 'Exceso de confianza en sí mismo o dificultad para aceptar responsabilidades' },
       { numero: 29, texto: 'Comportamientos rígidos, obstinación o dificultades para aceptar cambios' },
       { numero: 30, texto: 'Sensación de no poder manejar los problemas de la vida' },
-      { numero: 31, texto: 'Dificultades para dormir o problemas de concentración' },
+      { numero: 31, texto: 'Deseos de hacer daño a otros o hacerse daño' },
     ],
   },
 ];

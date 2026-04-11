@@ -39,7 +39,7 @@ export default function ResultadosJerarquicos() {
     async function fetchEmpresas() {
       if (!user) return;
       const snap = await getDocs(query(collection(db, 'empresas'), where('psicologo', '==', user.uid)));
-      const empData = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const empData = snap.docs.map(d => ({ id: d.id, ...d.data() } as { id: string; nombre: string; [key: string]: unknown }));
       setEmpresas(empData);
       
       // Auto-seleccionar primera empresa que tenga nombre similar a rankerize o la primera de la lista

@@ -70,7 +70,7 @@ export async function generarReporteWord(data: CompanyDocxData): Promise<Blob> {
     new Paragraph({
       alignment: AlignmentType.CENTER,
       children: [
-        new TextRun({ text: `Fecha de emisión: ${data.fecha}`, italic: true, size: 20 }),
+        new TextRun({ text: `Fecha de emisión: ${data.fecha}`, italics: true, size: 20 }),
       ],
       spacing: { after: 400 },
     }),
@@ -123,17 +123,17 @@ export async function generarReporteWord(data: CompanyDocxData): Promise<Blob> {
   const tablaHeader = new TableRow({
     children: [
       new TableCell({
-        children: [new Paragraph({ text: 'Área Organizacional', bold: true, alignment: AlignmentType.CENTER })],
+        children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Área Organizacional', bold: true })] })],
         shading: { fill: "E2E8F0" },
         margins: { top: 100, bottom: 100, left: 100, right: 100 },
       }),
       new TableCell({
-        children: [new Paragraph({ text: 'Riesgo Intralaboral Prom. (0-100)', bold: true, alignment: AlignmentType.CENTER })],
+        children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Riesgo Intralaboral Prom. (0-100)', bold: true })] })],
         shading: { fill: "E2E8F0" },
         margins: { top: 100, bottom: 100, left: 100, right: 100 },
       }),
       new TableCell({
-        children: [new Paragraph({ text: 'Estrés Sintomático Prom. (0-100)', bold: true, alignment: AlignmentType.CENTER })],
+        children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ text: 'Estrés Sintomático Prom. (0-100)', bold: true })] })],
         shading: { fill: "E2E8F0" },
         margins: { top: 100, bottom: 100, left: 100, right: 100 },
       }),

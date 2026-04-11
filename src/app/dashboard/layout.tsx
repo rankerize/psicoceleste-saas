@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
+import { logout } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
 
@@ -14,11 +15,11 @@ const navItems = [
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, logOut } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
-    await logOut();
+    await logout();
     router.push('/auth/login');
   };
   return (

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, Suspense } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import {
   ChevronRight, ChevronLeft, CheckCircle2, AlertCircle,
-  Loader2, ClipboardList, Save
+  Loader2, ClipboardList, Save, Cloud, CloudOff, CloudCog
 } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import {
@@ -19,7 +19,7 @@ import {
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-type Fase = 'identificacion' | 'intralaboral' | 'extralaboral' | 'estres' | 'completado';
+type Fase = 'identificacion' | 'intralaboral' | 'extralaboral' | 'estres' | 'completado' | 'pausado';
 type Respuestas = Record<string, string>;
 
 interface Empleado {
@@ -29,6 +29,15 @@ interface Empleado {
   tipoCargo: string;
   empresaId: string;
   empresaNombre?: string;
+  progresoBateria?: {
+    fase: Fase;
+    seccionIdx: number;
+    respIntra: Respuestas;
+    respExtra: Respuestas;
+    respEstres: Respuestas;
+    esJefe: boolean | null;
+    atiendaClientes: boolean | null;
+  };
 }
 
 // Valores numéricos para cada opción (dirección normal)
@@ -65,24 +74,25 @@ function PreguntaLikert({
   escala?: typeof ESCALA_RESPUESTAS;
 }) {
   return (
-    <div className="glass-card p-5 transition-all hover:border-sky-500/30">
-      <p className="text-white text-sm mb-4 leading-relaxed">
-        <span className="text-sky-400 font-bold mr-2">{numero}.</span>
+    <div className="glass-card p-6 md:p-8 transition-all hover:border-sky-500/30">
+      <p className="text-white text-base md:text-lg mb-6 leading-relaxed font-medium">
+        <span className="text-sky-400 font-bold mr-3 text-lg md:text-xl">{numero}.</span>
         {texto}
       </p>
-      <div className="grid grid-cols-5 gap-1 sm:gap-2">
+      <div className="flex flex-wrap sm:grid sm:grid-cols-5 gap-2 sm:gap-3">
         {escala.map(op => (
           <button
             key={op.valor}
             type="button"
             onClick={() => onChange(op.valor)}
             className={`
-              py-2 px-1 rounded-xl text-xs font-medium transition-all border
+              flex-1 sm:w-full py-3 px-2 rounded-xl text-[13px] md:text-sm font-semibold transition-all border break-words
               ${valor === op.valor
-                ? 'bg-sky-500 border-sky-400 text-white shadow-lg shadow-sky-500/20 scale-105'
+                ? 'bg-sky-500 border-sky-400 text-white shadow-lg shadow-sky-500/20 scale-[1.02]'
                 : 'bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 hover:text-white'
               }
             `}
+            style={{ minHeight: '3.5rem' }}
           >
             {op.label}
           </button>
@@ -90,6 +100,18 @@ function PreguntaLikert({
       </div>
     </div>
   );
+}
+
+// ─── Componente Sync Status ───────────────────────────────────────────────────
+
+function SyncIndicator({ status }: { status: 'synchronized' | 'saving' | 'error' }) {
+  if (status === 'saving') {
+    return <span className="flex items-center gap-1.5 text-xs text-sky-400 bg-sky-400/10 px-2 py-1 rounded-full"><Loader2 size={12} className="animate-spin" /> Guardando...</span>;
+  }
+  if (status === 'error') {
+    return <span className="flex items-center gap-1.5 text-xs text-red-400 bg-red-400/10 px-2 py-1 rounded-full"><CloudOff size={12} /> Error sync</span>;
+  }
+  return <span className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-full"><Cloud size={12} /> Guardado</span>;
 }
 
 // ─── Componente principal ─────────────────────────────────────────────────────
@@ -107,6 +129,8 @@ function BateriaContent() {
   const [saving, setSaving]           = useState(false);
   const [error, setError]             = useState('');
   const [cedulaInput, setCedulaInput] = useState(cedula ?? '');
+  const [syncStatus, setSyncStatus]   = useState<'synchronized' | 'saving' | 'error'>('synchronized');
+  const [showResumed, setShowResumed] = useState(false);
 
   // Respuestas por cuestionario
   const [respIntra, setRespIntra]       = useState<Respuestas>({});
@@ -148,14 +172,28 @@ function BateriaContent() {
         return;
       }
 
-      // Obtener nombre empresa
       if (empData.empresaId) {
         const empDoc = await getDoc(doc(db, 'empresas', empData.empresaId));
         if (empDoc.exists()) empData.empresaNombre = empDoc.data().nombre;
       }
 
       setEmpleado(empData);
-      setFase('intralaboral');
+
+      // Hydrate partial progress if exists
+      if (empData.progresoBateria) {
+        const p = empData.progresoBateria;
+        setFase(p.fase && p.fase !== 'pausado' ? p.fase : 'intralaboral');
+        setSeccionIdx(p.seccionIdx || 0);
+        setRespIntra(p.respIntra || {});
+        setRespExtra(p.respExtra || {});
+        setRespEstres(p.respEstres || {});
+        setEsJefe(p.esJefe ?? null);
+        setAtiendaClientes(p.atiendaClientes ?? null);
+        setShowResumed(true);
+        setTimeout(() => setShowResumed(false), 5000);
+      } else {
+        setFase('intralaboral');
+      }
     } catch {
       setError('Error al buscar empleado. Intenta nuevamente.');
     } finally {
@@ -172,6 +210,51 @@ function BateriaContent() {
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [seccionIdx, fase]);
+
+  // ── AUTO-GUARDADO (Debounce) ──────────────────────────────────────────────
+  useEffect(() => {
+    if (fase === 'identificacion' || fase === 'completado' || fase === 'pausado' || !empleado) return;
+    setSyncStatus('saving');
+    
+    const timeoutId = setTimeout(async () => {
+      try {
+        await updateDoc(doc(db, 'empleados', empleado.id), {
+          estadoBateria: 'en_progreso',
+          progresoBateria: {
+            fase,
+            seccionIdx,
+            respIntra,
+            respExtra,
+            respEstres,
+            esJefe,
+            atiendaClientes
+          }
+        });
+        setSyncStatus('synchronized');
+      } catch (err) {
+        setSyncStatus('error');
+      }
+    }, 1500); // 1.5s delay to avoid spamming writes
+
+    return () => clearTimeout(timeoutId);
+  }, [respIntra, respExtra, respEstres, fase, seccionIdx, esJefe, atiendaClientes, empleado]);
+
+  // ── Acción de Pausar ──────────────────────────────────────────────────────
+  const pausarCuestionario = async () => {
+    if (!empleado) return;
+    setSaving(true);
+    try {
+      await updateDoc(doc(db, 'empleados', empleado.id), {
+        estadoBateria: 'en_progreso',
+        progresoBateria: { fase, seccionIdx, respIntra, respExtra, respEstres, esJefe, atiendaClientes }
+      });
+      setFase('pausado');
+    } catch {
+      setError('Error al pausar la batería. Por favor intenta de nuevo.');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   // ── Cuestionario intralaboral según forma ─────────────────────────────────
 
@@ -308,22 +391,54 @@ function BateriaContent() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--navy-900)' }}>
         <div className="w-full max-w-md text-center">
-          <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="text-emerald-400" size={40} />
+          <div className="w-24 h-24 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6 transform transition-all scale-110">
+            <CheckCircle2 className="text-emerald-400" size={56} />
           </div>
-          <h1 className="text-2xl font-bold text-white mb-3">¡Evaluación completada!</h1>
-          <p className="text-slate-400 mb-2">
-            Gracias, <strong className="text-white">{empleado?.nombre}</strong>.
+          <h1 className="text-3xl font-bold text-white mb-3">¡Test guardado con éxito!</h1>
+          <p className="text-emerald-300 text-sm mb-6 font-medium bg-emerald-500/10 inline-block px-4 py-1.5 rounded-full">
+            Se ha completado el 100% de la información.
           </p>
-          <p className="text-slate-400 text-sm mb-8">
-            Tus respuestas han sido guardadas de forma segura. El psicólogo encargado
-            procesará los resultados y te informará oportunamente.
+          <p className="text-slate-400 mb-8 text-[15px] leading-relaxed px-4">
+            Gracias por tu tiempo, <strong className="text-white">{empleado?.nombre}</strong>. Tus respuestas han sido almacenadas de forma segura y encriptada. Ya puedes <strong>cerrar esta ventana</strong>.
           </p>
-          <div className="glass-card p-4 text-left text-xs text-slate-500">
-            <div className="flex justify-between mb-1"><span>Empresa</span><span className="text-slate-300">{empleado?.empresaNombre}</span></div>
-            <div className="flex justify-between mb-1"><span>Cédula</span><span className="text-slate-300">{empleado?.cedula}</span></div>
-            <div className="flex justify-between"><span>Forma aplicada</span><span className="text-sky-300 font-semibold">Intralaboral Forma {forma}</span></div>
+          <div className="glass-card p-5 text-left text-sm text-slate-400 border border-white/10">
+            <div className="flex justify-between items-center mb-3">
+              <span>Empresa</span>
+              <span className="text-white font-medium">{empleado?.empresaNombre}</span>
+            </div>
+            <div className="flex justify-between items-center mb-3">
+              <span>Cédula</span>
+              <span className="text-white font-medium">{empleado?.cedula}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span>Forma aplicada</span>
+              <span className="text-sky-400 font-semibold bg-sky-500/10 px-2 py-0.5 rounded-md">
+                Intralaboral Forma {forma}
+              </span>
+            </div>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Pantalla: pausado ─────────────────────────────────────────────────────
+
+  if (fase === 'pausado') {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" style={{ background: 'var(--navy-900)' }}>
+        <div className="w-full max-w-md text-center">
+          <div className="w-20 h-20 rounded-full bg-sky-500/20 flex items-center justify-center mx-auto mb-6">
+            <CloudCog className="text-sky-400" size={40} />
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-3">Evaluación Pausada</h1>
+          <p className="text-slate-400 mb-2 font-medium">Progreso guardado en la nube ☁️</p>
+          <p className="text-slate-400 text-sm mb-8 px-4 leading-relaxed">
+            Hemos guardado todas tus respuestas hasta este momento, <strong className="text-white">{empleado?.nombre}</strong>. Puedes cerrar esta ventana. Cuando tengas tiempo, vuelve a ingresar tu cédula y continuarás exactamente donde te quedaste.
+          </p>
+          <a href="/auth/login" className="btn-primary inline-flex" style={{ padding: '0.75rem 2rem' }}>
+            Ir a inicio
+          </a>
         </div>
       </div>
     );
@@ -340,26 +455,35 @@ function BateriaContent() {
     return (
       <div ref={topRef} className="min-h-screen" style={{ background: 'var(--navy-900)' }}>
         {/* Header sticky */}
-        <header className="sticky top-0 z-10 backdrop-blur-xl bg-slate-900/80 border-b border-white/5 px-4 py-3">
-          <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="text-lg">🩵</div>
+        <header className="sticky top-0 z-20 backdrop-blur-xl bg-slate-900/80 border-b border-white/5 px-4 py-3">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="text-xl">🩵</div>
               <div>
-                <p className="text-xs text-slate-400">{empleado?.nombre}</p>
-                <p className="text-xs text-sky-400 font-semibold">Intralaboral Forma {forma}</p>
+                <p className="text-xs text-slate-400 truncate max-w-[120px] sm:max-w-max">{empleado?.nombre}</p>
+                <p className="text-[11px] sm:text-xs text-sky-400 font-semibold">Intralaboral Forma {forma}</p>
               </div>
             </div>
-            <div className="flex-1 max-w-xs">
-              <div className="flex justify-between text-xs text-slate-400 mb-1">
-                <span>Sección {seccionIdx + 1} / {totalSecciones}</span>
-                <span>{pctIntra}%</span>
+            <div className="flex flex-col items-end gap-1.5 flex-1 max-w-xs">
+              <SyncIndicator status={syncStatus} />
+              <div className="w-full">
+                <div className="flex justify-between text-[10px] sm:text-xs text-slate-400 mb-1">
+                  <span>Sección {seccionIdx + 1} / {totalSecciones}</span>
+                  <span>{pctIntra}%</span>
+                </div>
+                <ProgressBar pct={pctIntra} />
               </div>
-              <ProgressBar pct={pctIntra} />
             </div>
           </div>
         </header>
 
-        <div className="max-w-2xl mx-auto p-4 pb-24">
+        {showResumed && (
+          <div className="bg-sky-500/10 border-b border-sky-500/20 px-4 py-2 text-center text-sm text-sky-200">
+            👋 ¡Hola de nuevo! Hemos cargado tu progreso para que continúes sin problema.
+          </div>
+        )}
+
+        <div className="max-w-3xl mx-auto p-4 md:p-6 pb-32">
           {/* Instrucción sección */}
           {seccionActual.instruccion && (
             <div className="bg-sky-500/10 border border-sky-500/20 rounded-xl px-4 py-3 mb-5 text-sm text-sky-200">
@@ -401,7 +525,7 @@ function BateriaContent() {
             (seccionActual.id === 'clientes_filtro' && atiendaClientes === true) ||
             (seccionActual.id === 'colaboradores_filtro' && esJefe === true)
           ) && (
-            <div className="space-y-3">
+            <div className="space-y-6 sm:space-y-8 mt-6">
               {preguntasNormales.map(p => (
                 <PreguntaLikert
                   key={p.numero}
@@ -416,17 +540,25 @@ function BateriaContent() {
         </div>
 
         {/* Footer navegación */}
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/5 px-4 py-3">
-          <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
-            <button
-              onClick={() => setSeccionIdx(i => Math.max(0, i - 1))}
-              disabled={seccionIdx === 0}
-              className="btn-secondary flex items-center gap-1 px-4"
-            >
-              <ChevronLeft size={16} /> Anterior
-            </button>
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/10 px-4 py-4 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setSeccionIdx(i => Math.max(0, i - 1))}
+                disabled={seccionIdx === 0}
+                className="btn-secondary flex items-center gap-1.5 px-4 h-11"
+              >
+                <ChevronLeft size={16} /> <span className="hidden sm:inline">Anterior</span>
+              </button>
+              <button
+                onClick={pausarCuestionario}
+                className="btn-secondary flex items-center gap-1.5 px-4 h-11 border-slate-600 hover:border-slate-500"
+              >
+                <CloudCog size={16} /> <span className="hidden md:inline">Pausar y salir</span>
+              </button>
+            </div>
 
-            <span className="text-xs text-slate-500 hidden sm:block">
+            <span className="text-xs text-slate-500 font-medium hidden lg:block">
               {Object.keys(respIntra).length} respuestas guardadas
             </span>
 
@@ -434,7 +566,7 @@ function BateriaContent() {
               <button
                 id="btn-siguiente-seccion"
                 onClick={() => setSeccionIdx(i => i + 1)}
-                className="btn-primary flex items-center gap-1 px-4"
+                className="btn-primary flex items-center gap-1.5 px-6 h-11 shadow-lg shadow-sky-500/20"
               >
                 Siguiente <ChevronRight size={16} />
               </button>
@@ -442,7 +574,7 @@ function BateriaContent() {
               <button
                 id="btn-ir-extralaboral"
                 onClick={() => setFase('extralaboral')}
-                className="btn-primary flex items-center gap-1 px-4 bg-emerald-600 hover:bg-emerald-500"
+                className="btn-primary flex items-center gap-1.5 px-6 h-11 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20"
               >
                 Continuar <ChevronRight size={16} />
               </button>
@@ -460,26 +592,29 @@ function BateriaContent() {
     const respondidas = Object.keys(respExtra).length;
     return (
       <div ref={topRef} className="min-h-screen" style={{ background: 'var(--navy-900)' }}>
-        <header className="sticky top-0 z-10 backdrop-blur-xl bg-slate-900/80 border-b border-white/5 px-4 py-3">
-          <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="text-lg">🩵</div>
+        <header className="sticky top-0 z-20 backdrop-blur-xl bg-slate-900/80 border-b border-white/5 px-4 py-3">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="text-xl">🩵</div>
               <div>
-                <p className="text-xs text-slate-400">{empleado?.nombre}</p>
-                <p className="text-xs text-emerald-400 font-semibold">Cuestionario Extralaboral</p>
+                <p className="text-xs text-slate-400 truncate max-w-[120px] sm:max-w-max">{empleado?.nombre}</p>
+                <p className="text-[11px] sm:text-xs text-emerald-400 font-semibold">Cuestionario Extralaboral</p>
               </div>
             </div>
-            <div className="flex-1 max-w-xs">
-              <div className="flex justify-between text-xs text-slate-400 mb-1">
-                <span>{respondidas} / {totalPregsExtra} ítems</span>
-                <span>{Math.round((respondidas / totalPregsExtra) * 100)}%</span>
+            <div className="flex flex-col items-end gap-1.5 flex-1 max-w-xs">
+              <SyncIndicator status={syncStatus} />
+              <div className="w-full">
+                <div className="flex justify-between text-[10px] sm:text-xs text-slate-400 mb-1">
+                  <span>{respondidas} / {totalPregsExtra} ítems</span>
+                  <span>{Math.round((respondidas / totalPregsExtra) * 100)}%</span>
+                </div>
+                <ProgressBar pct={(respondidas / totalPregsExtra) * 100} color="emerald" />
               </div>
-              <ProgressBar pct={(respondidas / totalPregsExtra) * 100} color="emerald" />
             </div>
           </div>
         </header>
 
-        <div className="max-w-2xl mx-auto p-4 pb-24">
+        <div className="max-w-3xl mx-auto p-4 md:p-6 pb-32">
           <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3 mb-5 text-sm text-emerald-200">
             Ahora responde las preguntas sobre tu vida <strong>fuera del trabajo</strong> —
             familia, tiempo libre, vivienda y situación económica.
@@ -492,7 +627,7 @@ function BateriaContent() {
                   {seccion.instruccion}
                 </div>
               )}
-              <div className="space-y-3">
+              <div className="space-y-6 sm:space-y-8 mt-6">
                 {seccion.preguntas.map(p => (
                   <PreguntaLikert
                     key={p.numero}
@@ -507,15 +642,26 @@ function BateriaContent() {
           ))}
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/5 px-4 py-3">
-          <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
-            <button onClick={() => setFase('intralaboral')} className="btn-secondary flex items-center gap-1 px-4">
-              <ChevronLeft size={16} /> Anterior
-            </button>
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/10 px-4 py-4 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFase('intralaboral')}
+                className="btn-secondary flex items-center gap-1.5 px-4 h-11"
+              >
+                <ChevronLeft size={16} /> <span className="hidden sm:inline">Anterior</span>
+              </button>
+              <button
+                onClick={pausarCuestionario}
+                className="btn-secondary flex items-center gap-1.5 px-4 h-11 border-slate-600 hover:border-slate-500"
+              >
+                <CloudCog size={16} /> <span className="hidden md:inline">Pausar y salir</span>
+              </button>
+            </div>
             <button
               id="btn-ir-estres"
               onClick={() => setFase('estres')}
-              className="btn-primary flex items-center gap-1 px-4"
+              className="btn-primary flex items-center gap-1.5 px-6 h-11 shadow-lg shadow-sky-500/20"
             >
               Continuar <ChevronRight size={16} />
             </button>
@@ -539,26 +685,29 @@ function BateriaContent() {
 
     return (
       <div ref={topRef} className="min-h-screen" style={{ background: 'var(--navy-900)' }}>
-        <header className="sticky top-0 z-10 backdrop-blur-xl bg-slate-900/80 border-b border-white/5 px-4 py-3">
-          <div className="max-w-2xl mx-auto flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="text-lg">🩵</div>
+        <header className="sticky top-0 z-20 backdrop-blur-xl bg-slate-900/80 border-b border-white/5 px-4 py-3">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="text-xl">🩵</div>
               <div>
-                <p className="text-xs text-slate-400">{empleado?.nombre}</p>
-                <p className="text-xs text-violet-400 font-semibold">Cuestionario de Estrés</p>
+                <p className="text-xs text-slate-400 truncate max-w-[120px] sm:max-w-max">{empleado?.nombre}</p>
+                <p className="text-[11px] sm:text-xs text-violet-400 font-semibold">Cuestionario de Estrés</p>
               </div>
             </div>
-            <div className="flex-1 max-w-xs">
-              <div className="flex justify-between text-xs text-slate-400 mb-1">
-                <span>{respEst} / {totalEstres} síntomas</span>
-                <span>{Math.round((respEst / totalEstres) * 100)}%</span>
+            <div className="flex flex-col items-end gap-1.5 flex-1 max-w-xs">
+              <SyncIndicator status={syncStatus} />
+              <div className="w-full">
+                <div className="flex justify-between text-[10px] sm:text-xs text-slate-400 mb-1">
+                  <span>{respEst} / {totalEstres} síntomas</span>
+                  <span>{Math.round((respEst / totalEstres) * 100)}%</span>
+                </div>
+                <ProgressBar pct={(respEst / totalEstres) * 100} color="violet" />
               </div>
-              <ProgressBar pct={(respEst / totalEstres) * 100} color="violet" />
             </div>
           </div>
         </header>
 
-        <div className="max-w-2xl mx-auto p-4 pb-24">
+        <div className="max-w-3xl mx-auto p-4 md:p-6 pb-32">
           <div className="bg-violet-500/10 border border-violet-500/20 rounded-xl px-4 py-3 mb-5 text-sm text-violet-200">
             Indica con qué frecuencia has experimentado cada uno de los siguientes síntomas
             durante el <strong>último mes</strong>.
@@ -571,7 +720,7 @@ function BateriaContent() {
                   {seccion.instruccion}
                 </div>
               )}
-              <div className="space-y-3">
+              <div className="space-y-6 sm:space-y-8 mt-6">
                 {seccion.preguntas.map(p => (
                   <PreguntaLikert
                     key={p.numero}
@@ -587,20 +736,31 @@ function BateriaContent() {
           ))}
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/5 px-4 py-3">
-          <div className="max-w-2xl mx-auto flex items-center justify-between gap-3">
-            <button onClick={() => setFase('extralaboral')} className="btn-secondary flex items-center gap-1 px-4">
-              <ChevronLeft size={16} /> Anterior
-            </button>
+        <div className="fixed bottom-0 left-0 right-0 bg-slate-900/90 backdrop-blur-xl border-t border-white/10 px-4 py-4 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.3)]">
+          <div className="max-w-3xl mx-auto flex items-center justify-between gap-3">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFase('extralaboral')}
+                className="btn-secondary flex items-center gap-1.5 px-4 h-11"
+              >
+                <ChevronLeft size={16} /> <span className="hidden sm:inline">Anterior</span>
+              </button>
+              <button
+                onClick={pausarCuestionario}
+                className="btn-secondary flex items-center gap-1.5 px-4 h-11 border-slate-600 hover:border-slate-500"
+              >
+                <CloudCog size={16} /> <span className="hidden md:inline">Pausar y salir</span>
+              </button>
+            </div>
             <button
               id="btn-finalizar-bateria"
               onClick={guardarResultados}
               disabled={saving}
-              className="btn-primary px-6 flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20"
+              className="btn-primary px-6 flex items-center gap-2 h-11 bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-500/20"
             >
               {saving
                 ? <><Loader2 size={16} className="animate-spin" /> Guardando...</>
-                : <><Save size={16} /> Finalizar y guardar</>
+                : <><Save size={16} /> Finalizar</>
               }
             </button>
           </div>

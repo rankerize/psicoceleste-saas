@@ -390,24 +390,24 @@ function ResultadosContent() {
             )}
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 mb-10 w-full relative z-10">
-               <div className="glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-sky-500/50 shadow-xl transition-all hover:-translate-y-1">
+            <div className="flex flex-col lg:flex-row gap-8 mb-10 w-full relative z-10">
+               <div className="flex-1 glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-sky-500/50 shadow-xl transition-all hover:-translate-y-1">
                   <div className="w-1.5 absolute right-0 top-0 bottom-0 bg-sky-500"></div>
                   <span className="text-sky-300 text-sm font-bold flex items-center gap-2 mb-3"><Users size={16}/> Evaluaciones Totales</span>
                   <span className="text-4xl font-black text-white">{resultados.length}</span>
                   <span className="text-xs text-slate-400 mt-2 bg-slate-800/50 py-1 px-2 rounded-md self-start border border-white/5">Periodo: {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Global'}</span>
                </div>
-               <div className="glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-red-500/50 shadow-xl transition-all hover:-translate-y-1">
+               <div className="flex-1 glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-red-500/50 shadow-xl transition-all hover:-translate-y-1">
                   <div className="w-1.5 absolute right-0 top-0 bottom-0 bg-red-500"></div>
                   <span className="text-red-400 text-sm font-bold flex items-center gap-2 mb-3"><Target size={16}/> Casos Críticos (Alto)</span>
                   <span className="text-4xl font-black text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">{resultados.filter(r => ['alto', 'muy_alto'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
                </div>
-               <div className="glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-emerald-500/50 shadow-xl transition-all hover:-translate-y-1">
+               <div className="flex-1 glass-card p-6 rounded-2xl flex flex-col relative overflow-hidden border border-slate-700 hover:border-emerald-500/50 shadow-xl transition-all hover:-translate-y-1">
                   <div className="w-1.5 absolute right-0 top-0 bottom-0 bg-emerald-500"></div>
                   <span className="text-emerald-400 text-sm font-bold flex items-center gap-2 mb-3"><CheckCircle2 size={16}/> Riesgo Bajo / Sano</span>
                   <span className="text-4xl font-black text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]">{resultados.filter(r => ['bajo', 'sin_riesgo'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
                </div>
-               <div className="glass-card rounded-2xl bg-gradient-to-br from-purple-900/30 to-indigo-900/30 hover:from-purple-900/40 hover:to-indigo-900/40 transition-all border border-purple-500/40 shadow-xl shadow-purple-900/20 hover:-translate-y-1 overflow-hidden group">
+               <div className="flex-1 glass-card rounded-2xl bg-gradient-to-br from-purple-900/30 to-indigo-900/30 hover:from-purple-900/40 hover:to-indigo-900/40 transition-all border border-purple-500/40 shadow-xl shadow-purple-900/20 hover:-translate-y-1 overflow-hidden group">
                   <button onClick={generarAnalisisIA} disabled={loadingAi} className="h-full w-full flex flex-col items-center justify-center p-6 text-purple-300 relative">
                      <div className="absolute inset-0 bg-purple-500/10 translate-y-[100%] group-hover:translate-y-0 transition-transform"></div>
                      {loadingAi ? <Loader2 size={32} className="animate-spin mb-3 z-10" /> : <BrainCircuit size={40} className="mb-3 text-purple-400 drop-shadow-[0_0_15px_rgba(168,85,247,0.6)] z-10 group-hover:scale-110 transition-transform" />}
@@ -428,8 +428,8 @@ function ResultadosContent() {
             )}
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 mb-12 relative z-10 w-full">
-                <div className="glass-card p-8 rounded-[2rem] border border-slate-700/60 shadow-xl bg-slate-800/40 hover:border-sky-500/30 transition-colors">
+            <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 mb-12 relative z-10 w-full">
+                <div className="flex-1 min-w-0 glass-card p-8 rounded-[2rem] border border-slate-700/60 shadow-xl bg-slate-800/40 hover:border-sky-500/30 transition-colors">
                     <h3 className="text-white font-bold mb-6 text-sm">Riesgo Promedio por Área ({selectedPeriodo})</h3>
                     <div className="h-[300px] w-full text-xs">
                         <ResponsiveContainer width="100%" height="100%">
@@ -448,7 +448,7 @@ function ResultadosContent() {
                     </div>
                 </div>
 
-                <div className="glass-card p-8 rounded-[2rem] border border-slate-700/60 shadow-xl bg-slate-800/40 hover:border-purple-500/30 transition-colors">
+                <div className="flex-1 min-w-0 glass-card p-8 rounded-[2rem] border border-slate-700/60 shadow-xl bg-slate-800/40 hover:border-purple-500/30 transition-colors">
                     <h3 className="text-white font-black mb-6 text-lg tracking-tight">Matriz de Dominios Global <span className="text-slate-400 font-normal">({selectedPeriodo})</span></h3>
                     <div className="h-[350px] w-full text-xs flex justify-center">
                         <ResponsiveContainer width="100%" height="100%">

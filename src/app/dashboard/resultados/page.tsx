@@ -5,11 +5,12 @@ import { useSearchParams } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { collection, query, getDocs, doc, getDoc, where, addDoc, serverTimestamp } from 'firebase/firestore';
 import { useAuth } from '@/lib/auth';
-import { Loader2, Download, Bot, Target, Users, LayoutDashboard, BrainCircuit, Calendar, Database, FileText } from 'lucide-react';
+import { Loader2, Download, Bot, Target, Users, LayoutDashboard, BrainCircuit, Calendar, Database, FileText, Camera, FileUp } from 'lucide-react';
 import { generarReporteWord } from '@/lib/docx/reporte-empresa';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+  LineChart, Line
 } from 'recharts';
 
 export default function ResultadosJerarquicos() {
@@ -44,6 +45,11 @@ function ResultadosContent() {
   // Datos para gráficas
   const [chartDataArea, setChartDataArea] = useState<any[]>([]);
   const [chartDataRadar, setChartDataRadar] = useState<any[]>([]);
+  const [chartDataEvolucion, setChartDataEvolucion] = useState<any[]>([]);
+  const [areasUnicas, setAreasUnicas] = useState<string[]>([]);
+
+  // Para encender/apagar empleados
+  const [excludedCedulas, setExcludedCedulas] = useState<Set<string>>(new Set());
 
   // 1. Cargar Empresas
   useEffect(() => {
@@ -96,20 +102,29 @@ function ResultadosContent() {
 
       setEmpleados(emps);
       setTodosResultados(res);
+      setExcludedCedulas(new Set()); // Reset exclusions on company change
       setLoadingStats(false);
     }
     fetchData();
   }, [selectedEmpresa, user, simulating]);
 
-  // 3. Efecto para aplicar el Filtro de Periodo
+  // 3. Efecto para aplicar el Filtro de Periodo y Empleados Excluidos
   useEffect(() => {
-     let filteredRes = todosResultados;
+     let currentRes = todosResultados.filter(r => !excludedCedulas.has(r.cedula));
+     let filteredRes = currentRes;
      if (selectedPeriodo !== 'todos') {
-         filteredRes = todosResultados.filter(r => r.periodo === selectedPeriodo);
+         filteredRes = currentRes.filter(r => r.periodo === selectedPeriodo);
      }
      setResultados(filteredRes);
 
-     // Recalcular métricas
+     // Función auxiliar simuladora
+     const getScore = (nivel?: string) => {
+        if (nivel === 'alto' || nivel === 'muy_alto') return 85;
+        if (nivel === 'bajo' || nivel === 'sin_riesgo') return 20;
+        return 50;
+     };
+
+     // Recalcular métricas Área (Periodo seleccionado)
      let areas: Record<string, { stressCount: number, intraCount: number, empCount: number }> = {};
      filteredRes.forEach(r => {
         const emp = empleados.find(e => e.cedula === r.cedula);
@@ -117,16 +132,9 @@ function ResultadosContent() {
             const area = emp.area || 'General';
             if (!areas[area]) areas[area] = { stressCount: 0, intraCount: 0, empCount: 0};
             areas[area].empCount += 1;
-            
-            // Simular niveles de área según datos del resultado
             const nivelGeneral = r.calificacion?.intra?.nivelRiesgoTotal || 'medio';
-            if (nivelGeneral === 'alto' || nivelGeneral === 'muy_alto') {
-               areas[area].stressCount += 85; areas[area].intraCount += 90;
-            } else if (nivelGeneral === 'bajo' || nivelGeneral === 'sin_riesgo') {
-               areas[area].stressCount += 15; areas[area].intraCount += 20;
-            } else {
-               areas[area].stressCount += 50; areas[area].intraCount += 45;
-            }
+            areas[area].stressCount += getScore(nivelGeneral);
+            areas[area].intraCount += getScore(nivelGeneral);
         }
      });
 
@@ -136,6 +144,37 @@ function ResultadosContent() {
         IntralaboralPromedio: Math.round(areas[key].intraCount / areas[key].empCount)
      }));
      setChartDataArea(areaData);
+
+     // Data de Evolución Histórica (Ignora selectedPeriodo, usa currentRes global!)
+     const allAreas = new Set<string>();
+     const pDataMap: Record<string, any> = {};
+     periodos.slice().reverse().forEach(p => { pDataMap[p] = { periodo: p, totalObj: {} }; });
+     
+     currentRes.forEach(r => {
+        if (!r.periodo) return;
+        const emp = empleados.find(e => e.cedula === r.cedula);
+        const area = emp?.area || 'General';
+        allAreas.add(area);
+        
+        if (!pDataMap[r.periodo]) pDataMap[r.periodo] = { periodo: r.periodo, totalObj: {} };
+        const score = getScore(r.calificacion?.intra?.nivelRiesgoTotal);
+        
+        if (!pDataMap[r.periodo].totalObj[area]) {
+            pDataMap[r.periodo].totalObj[area] = { sum: 0, count: 0 };
+        }
+        pDataMap[r.periodo].totalObj[area].sum += score;
+        pDataMap[r.periodo].totalObj[area].count += 1;
+     });
+
+     const evoData = Object.values(pDataMap).map(pVal => {
+         const obj: any = { periodo: pVal.periodo };
+         Object.keys(pVal.totalObj).forEach(a => {
+             obj[a] = Math.round(pVal.totalObj[a].sum / pVal.totalObj[a].count);
+         });
+         return obj;
+     });
+     setAreasUnicas(Array.from(allAreas));
+     setChartDataEvolucion(evoData);
 
      // Radar
      setChartDataRadar([
@@ -147,7 +186,7 @@ function ResultadosContent() {
          { subject: 'Extralaboral', A: Math.random() * 50 + 30, fullMark: 100 },
      ]);
 
-  }, [selectedPeriodo, todosResultados, empleados]);
+  }, [selectedPeriodo, todosResultados, empleados, excludedCedulas, periodos]);
 
   const generarAnalisisIA = async () => {
       setLoadingAi(true);
@@ -289,13 +328,13 @@ function ResultadosContent() {
            <select 
               value={selectedEmpresa}
               onChange={e => { setSelectedEmpresa(e.target.value); setSelectedPeriodo('todos'); }}
-              className="bg-slate-800/80 border border-slate-700 text-white text-sm rounded-xl px-4 py-2 shadow-lg"
+              className="bg-slate-800/80 border border-slate-700 text-white text-sm rounded-xl px-4 py-2 shadow-lg h-10"
            >
               <option value="">1. Eligir Empresa</option>
               {empresas.map(e => <option key={e.id} value={e.id}>{e.nombre}</option>)}
            </select>
 
-           <div className="flex items-center bg-slate-800/80 shadow-lg border border-slate-700 rounded-xl px-2">
+           <div className="flex items-center bg-slate-800/80 shadow-lg border border-slate-700 rounded-xl px-2 h-10">
               <Calendar size={14} className="text-slate-400 ml-2" />
               <select 
                   value={selectedPeriodo}
@@ -308,9 +347,23 @@ function ResultadosContent() {
               </select>
            </div>
 
-           <button onClick={generarDocxMock} disabled={generandoDoc} className="btn-primary text-sm flex items-center gap-2">
+           <a 
+              href={`/dashboard/escaner?empresaId=${selectedEmpresa}`} 
+              className={`btn-secondary text-sm flex items-center gap-2 h-10 border-indigo-500/30 hover:bg-indigo-500/10 ${!selectedEmpresa ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+           >
+              <Camera size={14} className="text-indigo-400" /> Escáner AI
+           </a>
+           
+           <a 
+              href={`/bateria/manual?empresaId=${selectedEmpresa}`} 
+              className={`btn-secondary text-sm flex items-center gap-2 h-10 border-sky-500/30 hover:bg-sky-500/10 ${!selectedEmpresa ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+           >
+              <FileUp size={14} className="text-sky-400" /> Subir Manual
+           </a>
+
+           <button onClick={generarDocxMock} disabled={generandoDoc} className="btn-primary text-sm flex items-center gap-2 h-10">
               {generandoDoc ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />} 
-              {generandoDoc ? 'Generando...' : 'Exportar Word'}
+              <span className="hidden sm:inline">{generandoDoc ? 'Generando...' : 'Exportar Word'}</span>
            </button>
         </div>
       </div>
@@ -337,24 +390,24 @@ function ResultadosContent() {
             )}
 
             {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden border border-slate-700/60 shadow-lg">
                   <div className="w-1 absolute right-0 top-0 bottom-0 bg-sky-500"></div>
                   <span className="text-slate-400 text-sm flex items-center gap-1 mb-2"><Users size={14}/> Evaluaciones en el Periodo</span>
                   <span className="text-3xl font-bold text-white">{resultados.length}</span>
                   <span className="text-xs text-slate-400 mt-1">Periodo: {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Histórico global'}</span>
                </div>
-               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden">
+               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden border border-slate-700/60 shadow-lg">
                   <div className="w-1 absolute right-0 top-0 bottom-0 bg-red-500"></div>
                   <span className="text-red-300 text-sm flex items-center gap-1 mb-2"><Target size={14}/> Casos Críticos (Alto)</span>
                   <span className="text-3xl font-bold text-red-500">{resultados.filter(r => ['alto', 'muy_alto'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
                </div>
-               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden">
+               <div className="glass-card p-5 rounded-xl flex flex-col relative overflow-hidden border border-slate-700/60 shadow-lg">
                   <div className="w-1 absolute right-0 top-0 bottom-0 bg-emerald-500"></div>
                   <span className="text-emerald-300 text-sm flex items-center gap-1 mb-2">Casos Saludables (Bajo)</span>
                   <span className="text-3xl font-bold text-emerald-400">{resultados.filter(r => ['bajo', 'sin_riesgo'].includes(r.calificacion?.intra?.nivelRiesgoTotal)).length}</span>
                </div>
-               <div className="glass-card p-1 rounded-xl bg-purple-900/10 hover:bg-purple-900/20 transition-colors border border-purple-500/30">
+               <div className="glass-card p-1 rounded-xl bg-purple-900/10 hover:bg-purple-900/20 transition-colors border border-purple-500/50 shadow-lg shadow-purple-900/20">
                   <button onClick={generarAnalisisIA} disabled={loadingAi} className="h-full w-full flex flex-col items-center justify-center py-3 text-purple-300">
                      {loadingAi ? <Loader2 size={24} className="animate-spin mb-2" /> : <BrainCircuit size={28} className="mb-2 text-purple-400" />}
                      <span className="font-bold text-sm tracking-wide">Interpretación IA de {selectedPeriodo !== 'todos' ? selectedPeriodo : 'Todo'}</span>
@@ -374,8 +427,8 @@ function ResultadosContent() {
             )}
 
             {/* Charts Row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="glass-card p-6 rounded-2xl">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 my-8">
+                <div className="glass-card p-6 rounded-2xl border border-slate-700/60 shadow-lg">
                     <h3 className="text-white font-bold mb-6 text-sm">Riesgo Promedio por Área ({selectedPeriodo})</h3>
                     <div className="h-[300px] w-full text-xs">
                         <ResponsiveContainer width="100%" height="100%">
@@ -394,7 +447,7 @@ function ResultadosContent() {
                     </div>
                 </div>
 
-                <div className="glass-card p-6 rounded-2xl">
+                <div className="glass-card p-6 rounded-2xl border border-slate-700/60 shadow-lg">
                     <h3 className="text-white font-bold mb-6 text-sm">Matriz de Dominios Global ({selectedPeriodo})</h3>
                     <div className="h-[300px] w-full text-xs flex justify-center">
                         <ResponsiveContainer width="100%" height="100%">
@@ -412,6 +465,31 @@ function ResultadosContent() {
                 </div>
             </div>
 
+            {/* Evolucion Histórica Row */}
+            <div className="glass-card p-6 rounded-2xl border border-slate-700/60 shadow-lg mb-8">
+                <h3 className="text-white font-bold mb-2 text-sm">Evolución de Riesgo por Área (Histórico)</h3>
+                <p className="text-xs text-slate-400 mb-6">Muestra los promedios globales a través de los diversos periodos.</p>
+                <div className="h-[350px] w-full text-xs">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={chartDataEvolucion} margin={{ top: 5, right: 30, left: -20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
+                            <XAxis dataKey="periodo" stroke="#475569" tick={{ fontSize: 12, fontWeight: 500 }} />
+                            <YAxis stroke="#475569" domain={[0, 100]} />
+                            <RechartsTooltip 
+                                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff',  }}
+                            />
+                            <Legend />
+                            {areasUnicas.map((area, idx) => {
+                                const colors = ['#0ea5e9', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+                                return (
+                                    <Line key={area} type="monotone" dataKey={area} stroke={colors[idx % colors.length]} strokeWidth={3} name={area} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                );
+                            })}
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
+            </div>
+
             {/* Individual Table */}
             <div className="glass-card rounded-2xl border-white/10 overflow-hidden">
                <div className="p-5 border-b border-white/10 flex justify-between items-center">
@@ -422,6 +500,7 @@ function ResultadosContent() {
                    <table className="w-full text-sm text-left">
                        <thead className="bg-slate-800/40 text-xs text-slate-400 uppercase">
                            <tr>
+                               <th className="py-4 px-5 text-center">Incluir Datos</th>
                                <th className="py-4 px-5">Cédula</th>
                                <th className="py-4 px-5">Empleado Info</th>
                                <th className="py-4 px-5 text-center">Periodo</th>
@@ -442,7 +521,22 @@ function ResultadosContent() {
                                    if (['bajo', 'sin_riesgo'].includes(nivel)) badgeColor = 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20';
 
                                    return (
-                                       <tr key={res.id} className="border-b border-white/5 hover:bg-slate-800/40 transition-colors">
+                                       <tr key={res.id} className={`border-b border-white/5 transition-colors ${excludedCedulas.has(res.cedula) ? 'opacity-40 bg-slate-900/60' : 'hover:bg-slate-800/40'}`}>
+                                           <td className="py-3 px-5 text-center">
+                                              <input 
+                                                type="checkbox" 
+                                                checked={!excludedCedulas.has(res.cedula)}
+                                                onChange={() => {
+                                                   setExcludedCedulas(prev => {
+                                                      const n = new Set(prev);
+                                                      n.has(res.cedula) ? n.delete(res.cedula) : n.add(res.cedula);
+                                                      return n;
+                                                   })
+                                                }}
+                                                className="w-4 h-4 cursor-pointer accent-sky-500 rounded border-slate-600 bg-slate-700"
+                                                title="Incluir en el análisis"
+                                              />
+                                           </td>
                                            <td className="py-3 px-5 text-slate-300 font-mono text-xs whitespace-nowrap">{res.cedula}</td>
                                            <td className="py-3 px-5">
                                               <div className="font-bold text-white mb-0.5">{emp.nombre}</div>

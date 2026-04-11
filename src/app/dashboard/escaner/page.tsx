@@ -7,8 +7,8 @@ import { useAuth } from '@/lib/auth';
 import { collection, getDocs, addDoc, query, where, serverTimestamp, updateDoc, doc, getDoc, increment } from 'firebase/firestore';
 
 export default function EscanerAIPage() {
-  const [photo, setPhoto] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Record<string, number> | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,32 +51,35 @@ export default function EscanerAIPage() {
     fetchEmpleados();
   }, [selectedEmpresa]);
 
-  const handleFile = (file: File) => {
-    if (!file.type.startsWith('image/')) {
+  const handleFiles = (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    const validFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+    
+    if (validFiles.length === 0) {
       setError('Solo se aceptan imágenes (JPG, PNG)');
       return;
     }
-    setPhoto(file);
-    setPreviewUrl(URL.createObjectURL(file));
+
+    setPhotos(prev => [...prev, ...validFiles]);
+    const urls = validFiles.map(f => URL.createObjectURL(f));
+    setPreviewUrls(prev => [...prev, ...urls]);
     setResults(null);
     setError(null);
   };
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
-    }
+    handleFiles(e.dataTransfer.files);
   };
 
   const procesarImagen = async () => {
-    if (!photo) return;
+    if (photos.length === 0) return;
     setLoading(true);
     setError(null);
     
     try {
       const formData = new FormData();
-      formData.append('imagen', photo);
+      photos.forEach(p => formData.append('imagenes', p));
 
       const res = await fetch('/api/escaneo', {
         method: 'POST',
@@ -95,8 +98,8 @@ export default function EscanerAIPage() {
   };
 
   const clear = () => {
-    setPhoto(null);
-    setPreviewUrl(null);
+    setPhotos([]);
+    setPreviewUrls([]);
     setResults(null);
     setError(null);
     setSuccessMsg('');

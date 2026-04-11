@@ -9,7 +9,6 @@ import { LogOut } from 'lucide-react';
 const navItems = [
   { href: '/dashboard', icon: '🏠', label: 'Dashboard' },
   { href: '/dashboard/empresas', icon: '🏢', label: 'Gestión de Empresas' },
-  { href: '/dashboard/escaner', icon: '📸', label: 'Escáner AI' },
   { href: '/dashboard/suscripcion', icon: '💳', label: 'Plan y Facturación' },
 ];
 

@@ -15,38 +15,40 @@ export async function POST(req: Request) {
     }
 
     const formData = await req.formData();
-    const file = formData.get('imagen') as File;
+    // Leer TODAS las imágenes enviadas bajo el key 'imagenes'
+    const files = formData.getAll('imagenes') as File[];
 
-    if (!file) {
-      return NextResponse.json({ error: 'No se envió ninguna imagen' }, { status: 400 });
+    if (!files || files.length === 0) {
+      return NextResponse.json({ error: 'No se enviaron imágenes' }, { status: 400 });
     }
 
-    // Convertir a ArrayBuffer para la API de Gemini
-    const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    
     // Configurar modelo. Gemini 1.5 Flash es veloz y barato para imágenes + texto
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
     const prompt = `Eres un sistema OMR experto en digitación médica/ocupacional. 
-Esta es una fotografía de una página de la 'Batería de Riesgo Psicosocial' oficial de Colombia.
-Tu tarea es leer las X, recuadros rellenos o chulos (✓) que el paciente marcó con lapicero.
+Esta es una fotografía (o una secuencia de fotografías) de la 'Batería de Riesgo Psicosocial' oficial de Colombia.
+Tu tarea es leer las X, recuadros rellenos o chulos (✓) que el paciente marcó con lapicero o lápiz.
 
 Instrucciones:
-1. Identifica el número de la pregunta en cada fila.
-2. Identifica en qué columna marcó la respuesta de la escala Likert (comúnmente Siempre, Casi siempre, Algunas veces, Casi nunca, Nunca). A veces la escala cambia dependiendo del cuadernillo. Asume que la columna izquierda es 1 y avanza secuencialmente. 
-3. Retorna la salida ÚNICAMENTE en formato JSON.
+1. Analiza cada imagen secuencialmente, cruzando la información para construir un solo resultado.
+2. Identifica el número de la pregunta en cada fila.
+3. Identifica en qué columna marcó la respuesta de la escala Likert (comúnmente Siempre, Casi siempre, Algunas veces, Casi nunca, Nunca). A veces la escala cambia dependiendo del cuadernillo. Asume que la columna izquierda extrema siempre es la opción superior según la escala y avanza secuencialmente. 
+4. Retorna la salida ÚNICAMENTE en formato JSON consolidado abarcando todas las preguntas detectadas en todas las imágenes provistas.
 El JSON debe tener la estructura: { "numero_pregunta": "valor_detectado" } 
 No agregues explicaciones, markdown, ni disculpas. Si no logras leer una marca porque está muy confusa, no agregues esa pregunta al resultado JSON.`;
 
-    const imageParts = [
-      {
-        inlineData: {
-          data: buffer.toString('base64'),
-          mimeType: file.type,
-        },
-      },
-    ];
+    const imageParts = await Promise.all(
+      files.map(async (file) => {
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        return {
+          inlineData: {
+            data: buffer.toString('base64'),
+            mimeType: file.type,
+          },
+        };
+      })
+    );
 
     const result = await model.generateContent([prompt, ...imageParts]);
     const response = await result.response;

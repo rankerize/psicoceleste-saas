@@ -82,6 +82,7 @@ export default function EmpresasPage() {
   // CSV Preview state
   type CsvRow = { nombre: string; cedula: string; cargo: string; area: string; email: string; telefono: string };
   const [csvPreview, setCsvPreview] = useState<CsvRow[]>([]);
+  const [csvDuplicates, setCsvDuplicates] = useState<Set<string>>(new Set());
 
   const [editando, setEditando]     = useState<Empresa | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
@@ -187,13 +188,14 @@ export default function EmpresasPage() {
   };
 
   // ── Importar CSV Empleados ────────────────────────────────────────────────────
-  const parseCSVToPreview = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const parseCSVToPreview = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setError('');
     setSuccessMsg('');
+    setCsvDuplicates(new Set());
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = async (evt) => {
       const text = evt.target?.result as string;
       const lines = text.trim().split('\n').slice(1); // Skip header
       const rows: { nombre: string; cedula: string; cargo: string; area: string; email: string; telefono: string }[] = [];
@@ -206,7 +208,26 @@ export default function EmpresasPage() {
         rows.push({ nombre: nombreComp, cedula, cargo, area, email, telefono });
       }
       setCsvPreview(rows);
-      if (rows.length === 0) setError('No se encontraron filas válidas en el CSV.');
+      if (rows.length === 0) { setError('No se encontraron filas válidas en el CSV.'); return; }
+
+      // Detectar duplicados consultando Firestore
+      if (empresaReciente) {
+        const cedulas = rows.map(r => r.cedula).filter(Boolean);
+        const duplicados = new Set<string>();
+        // Firestore 'in' supports max 30 items; chunk if needed
+        const chunkSize = 30;
+        for (let i = 0; i < cedulas.length; i += chunkSize) {
+          const chunk = cedulas.slice(i, i + chunkSize);
+          const q = query(
+            collection(db, 'empleados'),
+            where('empresaId', '==', empresaReciente.id),
+            where('cedula', 'in', chunk)
+          );
+          const snap = await getDocs(q);
+          snap.docs.forEach(d => duplicados.add(d.data().cedula));
+        }
+        setCsvDuplicates(duplicados);
+      }
     };
     reader.readAsText(file);
     e.target.value = '';
@@ -217,32 +238,61 @@ export default function EmpresasPage() {
     setCsvLoading(true);
     setError('');
     setSuccessMsg('');
-    let imported = 0;
+    let created = 0;
+    let updated = 0;
     let failed = 0;
+
     for (const row of csvPreview) {
       try {
-        await addDoc(collection(db, 'empleados'), {
-          cedula: row.cedula,
-          nombre: row.nombre,
-          cargo: row.cargo,
-          tipoCargo: 'auxiliar',
-          area: row.area,
-          email: row.email,
-          telefono: row.telefono,
-          empresaId: empresaReciente.id,
-          psicologo: user.uid,
-          estadoBateria: 'pendiente',
-          creadoEn: serverTimestamp(),
-        });
-        imported++;
+        // Buscar si ya existe un empleado con esa cédula en esta empresa
+        const q = query(
+          collection(db, 'empleados'),
+          where('cedula', '==', row.cedula),
+          where('empresaId', '==', empresaReciente.id)
+        );
+        const snap = await getDocs(q);
+
+        if (!snap.empty) {
+          // ── Ya existe → Actualizar datos (nunca duplicar) ──
+          const existingDoc = snap.docs[0];
+          await updateDoc(doc(db, 'empleados', existingDoc.id), {
+            nombre: row.nombre,
+            cargo: row.cargo,
+            area: row.area,
+            email: row.email,
+            telefono: row.telefono,
+          });
+          updated++;
+        } else {
+          // ── No existe → Crear nuevo ──
+          await addDoc(collection(db, 'empleados'), {
+            cedula: row.cedula,
+            nombre: row.nombre,
+            cargo: row.cargo,
+            tipoCargo: 'auxiliar',
+            area: row.area,
+            email: row.email,
+            telefono: row.telefono,
+            empresaId: empresaReciente.id,
+            psicologo: user.uid,
+            estadoBateria: 'pendiente',
+            creadoEn: serverTimestamp(),
+          });
+          created++;
+        }
       } catch { failed++; }
     }
+
     setCsvPreview([]);
-    setEmpleadosAgregados(prev => prev + imported);
+    setEmpleadosAgregados(prev => prev + created);
+
+    const parts = [];
+    if (created > 0) parts.push(`${created} nuevos`);
+    if (updated > 0) parts.push(`${updated} actualizados`);
     if (failed > 0) {
-      setError(`${imported} importados, ${failed} fallaron (revisa el formato).`);
+      setError(`${parts.join(', ')} — ${failed} fallaron (revisa el formato).`);
     } else {
-      setSuccessMsg(`¡${imported} empleados importados correctamente!`);
+      setSuccessMsg(`¡Importación completa! ${parts.join(' · ')}.`);
     }
     await cargarEmpresas();
     setCsvLoading(false);
@@ -626,43 +676,56 @@ export default function EmpresasPage() {
                           <div className="flex items-center justify-between mb-4">
                             <div>
                               <h4 className="text-white font-semibold text-sm">Previsualizar y confirmar importación</h4>
-                              <p className="text-xs text-slate-400 mt-0.5">{csvPreview.length} empleados encontrados · Edita cualquier celda antes de importar</p>
+                              <p className="text-xs text-slate-400 mt-0.5">
+                                {csvPreview.length} empleados ·{' '}
+                                <span className="text-emerald-400 font-medium">{csvPreview.length - csvDuplicates.size} nuevos</span>
+                                {csvDuplicates.size > 0 && <>{' · '}<span className="text-amber-400 font-medium">{csvDuplicates.size} existentes (se actualizan)</span></>}
+                              </p>
                             </div>
-                            <button onClick={() => setCsvPreview([])} className="text-slate-500 hover:text-red-400 transition-colors text-xl leading-none px-2">✕</button>
+                            <button onClick={() => { setCsvPreview([]); setCsvDuplicates(new Set()); }} className="text-slate-500 hover:text-red-400 transition-colors text-xl leading-none px-2">✕</button>
                           </div>
                           <div className="overflow-x-auto rounded-xl border border-white/10 mb-4" style={{ maxHeight: "280px", overflowY: "auto" }}>
                             <table className="w-full text-xs">
                               <thead className="bg-slate-800/90 sticky top-0 z-10">
                                 <tr>
-                                  {["Nombre completo","Cédula","Cargo","Área","Email","Teléfono"].map(h => (
+                                  {["Nombre completo","Cédula","Cargo","Área","Email","Teléfono","Estado"].map(h => (
                                     <th key={h} className="px-3 py-2 text-slate-400 font-semibold text-left whitespace-nowrap">{h}</th>
                                   ))}
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-white/5">
-                                {csvPreview.map((row, i) => (
-                                  <tr key={i} className="hover:bg-white/5 transition-colors">
-                                    {(["nombre","cedula","cargo","area","email","telefono"] as const).map(field => (
-                                      <td key={field} className="px-2 py-1">
-                                        <input
-                                          value={row[field]}
-                                          onChange={e => {
-                                            const updated = [...csvPreview];
-                                            updated[i] = { ...updated[i], [field]: e.target.value.toLowerCase() };
-                                            setCsvPreview(updated);
-                                          }}
-                                          className="w-full bg-transparent text-white border-b border-transparent hover:border-slate-600 focus:border-sky-500 focus:outline-none py-0.5 px-1 transition-colors"
-                                          style={{ minWidth: "90px" }}
-                                        />
+                                {csvPreview.map((row, i) => {
+                                  const isDup = csvDuplicates.has(row.cedula);
+                                  return (
+                                    <tr key={i} className={`transition-colors ${isDup ? 'bg-amber-500/5 hover:bg-amber-500/10' : 'hover:bg-white/5'}`}>
+                                      {(["nombre","cedula","cargo","area","email","telefono"] as const).map(field => (
+                                        <td key={field} className="px-2 py-1">
+                                          <input
+                                            value={row[field]}
+                                            onChange={e => {
+                                              const updated = [...csvPreview];
+                                              updated[i] = { ...updated[i], [field]: e.target.value.toLowerCase() };
+                                              setCsvPreview(updated);
+                                            }}
+                                            className="w-full bg-transparent text-white border-b border-transparent hover:border-slate-600 focus:border-sky-500 focus:outline-none py-0.5 px-1 transition-colors"
+                                            style={{ minWidth: "90px" }}
+                                          />
+                                        </td>
+                                      ))}
+                                      <td className="px-2 py-1 whitespace-nowrap">
+                                        {isDup
+                                          ? <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">Actualizar</span>
+                                          : <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Nuevo</span>
+                                        }
                                       </td>
-                                    ))}
-                                  </tr>
-                                ))}
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
                           <div className="flex gap-3">
-                            <button onClick={() => setCsvPreview([])} className="btn-secondary flex-1 text-sm py-2">Cancelar</button>
+                            <button onClick={() => { setCsvPreview([]); setCsvDuplicates(new Set()); }} className="btn-secondary flex-1 text-sm py-2">Cancelar</button>
                             <button onClick={confirmarImportCSV} disabled={csvLoading} className="btn-primary flex-1 text-sm py-2 flex items-center justify-center gap-2">
                               {csvLoading ? <><Loader2 size={14} className="animate-spin" /> Importando...</> : <><Check size={14} /> Confirmar y subir {csvPreview.length} empleados</>}
                             </button>

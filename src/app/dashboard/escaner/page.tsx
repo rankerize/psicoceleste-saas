@@ -180,6 +180,37 @@ export default function EscanerAIPage() {
         Evita sombras oscuras o páginas muy torcidas para garantizar una lectura matemática precisa.
       </p>
 
+      {/* Selectores Globales */}
+      <div className="glass-card mb-8 p-6 flex flex-col md:flex-row gap-4 border border-slate-700 bg-slate-900/50">
+         <div className="flex-1 w-full">
+            <label className="text-white text-sm font-bold mb-2 flex items-center gap-2">
+              <Building2 size={16} className="text-sky-400" /> 1. Empresa a Evaluar
+            </label>
+            <select 
+               className="input-field w-full bg-slate-800 border-white/10" 
+               value={selectedEmpresa} 
+               onChange={e => setSelectedEmpresa(e.target.value)}
+            >
+               <option value="">-- Selecciona una Empresa --</option>
+               {empresas.map(emp => <option key={emp.id} value={emp.id}>{emp.nombre}</option>)}
+            </select>
+         </div>
+         <div className="flex-1 w-full">
+            <label className="text-white text-sm font-bold mb-2 flex items-center gap-2">
+              <User size={16} className="text-emerald-400" /> 2. Empleado (Dueño de la hoja)
+            </label>
+            <select 
+               className="input-field w-full bg-slate-800 border-white/10 disabled:opacity-50" 
+               value={selectedEmpleado} 
+               onChange={e => setSelectedEmpleado(e.target.value)}
+               disabled={!selectedEmpresa}
+            >
+               <option value="">-- Escoge Empleado --</option>
+               {empleados.map(emp => <option key={emp.id} value={emp.id}>{emp.nombre} ({emp.cedula})</option>)}
+            </select>
+         </div>
+      </div>
+
       <div className="grid md:grid-cols-2 gap-8">
         {/* Zona de Carga */}
         <div className="space-y-6">
@@ -275,30 +306,8 @@ export default function EscanerAIPage() {
 
           {results && !successMsg && (
             <>
-              {/* Asignar a empleado */}
-              <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5 mb-4 space-y-3">
-                <h3 className="text-white text-sm font-bold flex items-center gap-2 mb-2">
-                  <User size={16} className="text-sky-400" /> Asignar a Empleado
-                </h3>
-                
-                <select 
-                  className="input-field w-full" 
-                  value={selectedEmpresa} 
-                  onChange={e => setSelectedEmpresa(e.target.value)}
-                >
-                  <option value="">-- Escoge Empresa --</option>
-                  {empresas.map(emp => <option key={emp.id} value={emp.id}>{emp.nombre}</option>)}
-                </select>
-
-                <select 
-                  className="input-field w-full disabled:opacity-50" 
-                  value={selectedEmpleado} 
-                  onChange={e => setSelectedEmpleado(e.target.value)}
-                  disabled={!selectedEmpresa}
-                >
-                  <option value="">-- Escoge Empleado --</option>
-                  {empleados.map(emp => <option key={emp.id} value={emp.id}>{emp.nombre} ({emp.cedula})</option>)}
-                </select>
+              {/* Botón Guardar (Selectores movidos arriba) */}
+              <div className="bg-slate-800/50 p-4 rounded-xl border border-white/5 mb-4">
 
                 <button 
                   onClick={guardarResultadoHaciaDB}

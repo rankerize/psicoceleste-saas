@@ -538,14 +538,6 @@ export default function EmpresasPage() {
                     </div>
                   </div>
 
-                  <div>
-                    <label className="block text-sm text-slate-300 mb-1">Número de empleados (Aprox)</label>
-                    <div className="relative flex items-center">
-                      <Users className="absolute left-3 text-slate-400" size={15} />
-                      <input type="number" min={1} value={form.cantidadEmpleados || ''} onChange={e => setForm(f => ({ ...f, cantidadEmpleados: parseInt(e.target.value) || 0 }))} className="input-field w-full pl-10 pr-10" placeholder="50" />
-                      {form.cantidadEmpleados > 0 && <Check className="absolute right-3 text-emerald-400" size={16} />}
-                    </div>
-                  </div>
 
                   <div>
                     <label className="block text-sm text-slate-300 mb-1">Nombre del contacto</label>

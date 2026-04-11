@@ -104,8 +104,8 @@ export default function EmpresasPage() {
         // Aquí podríamos iterar sobre resultados para contar baterías, pero como 
         // optimización dejemos cantidad real de emp vs form.
         return { 
-          id: d.id, 
           ...empData,
+          id: d.id, 
           cantidadEmpleados: actualCount // SOBRESCRIBE el número estimado del form con la data REAL!
         } as Empresa;
       }));

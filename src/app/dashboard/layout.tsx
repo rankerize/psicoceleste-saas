@@ -11,7 +11,6 @@ const navItems = [
   { href: '/dashboard/empresas', icon: '🏢', label: 'Gestión de Empresas' },
   { href: '/dashboard/escaner', icon: '📸', label: 'Escáner AI' },
   { href: '/dashboard/suscripcion', icon: '💳', label: 'Plan y Facturación' },
-  { href: '/dashboard/configuracion', icon: '⚙️', label: 'Configuración' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

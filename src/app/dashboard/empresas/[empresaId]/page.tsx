@@ -103,39 +103,6 @@ export default function EmpleadosPage() {
 
   useEffect(() => { cargarDatos(); }, [cargarDatos]);
 
-  // ── Verificación de Límites ───────────────────────────────────────────────────
-  const verificarLimites = async (cantidadASumar: number): Promise<boolean> => {
-    if (!user) return false;
-    
-    if (user.email === 'rankerize@gmail.com' || user.email?.endsWith('@rankerize.com')) {
-      return true;
-    }
-
-    const userDoc = await getDoc(doc(db, 'users', user.uid));
-    if (!userDoc.exists()) return false;
-    
-    const data = userDoc.data();
-    const plan = data.plan || 'free';
-    const baterias_usadas = data.baterias_usadas || 0;
-    
-    if (plan === 'pro') return true;
-
-    const limit = plan === 'starter' ? 100 : 3;
-    const allowance = limit - baterias_usadas;
-    
-    if (allowance < cantidadASumar) {
-       let msg = `Límite alcanzado. Tu plan (${plan.toUpperCase()}) permite un máximo de ${limit} baterías y ya has usado ${baterias_usadas}. `;
-       if (cantidadASumar > 1) {
-           msg = `No tienes cupos suficientes para importar ${cantidadASumar} empleados. Tu plan (${plan.toUpperCase()}) permite un tope de ${limit} y te quedan ${allowance}. `;
-       }
-       msg += 'Por favor actualiza al Plan PRO en Facturación para seguir evaluando ilimitadamente.';
-       setError(msg);
-       return false;
-    }
-    
-    return true;
-  };
-
   // ── Guardar empleado ──────────────────────────────────────────────────────────
 
   const onGuardar = async (e: React.FormEvent) => {
@@ -148,17 +115,18 @@ export default function EmpleadosPage() {
       if (editando) {
         await updateDoc(doc(db, 'empleados', editando.id), payload);
       } else {
-        const puedeCrear = await verificarLimites(1);
-        if (!puedeCrear) {
-           setSaving(false);
-           return;
+        const q = query(collection(db, 'empleados'), where('cedula', '==', form.cedula), where('empresaId', '==', empresaId));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const docId = snap.docs[0].id;
+          await updateDoc(doc(db, 'empleados', docId), payload);
+        } else {
+          await addDoc(collection(db, 'empleados'), {
+            ...payload,
+            estadoBateria: 'pendiente',
+            creadoEn: serverTimestamp(),
+          });
         }
-        await addDoc(collection(db, 'empleados'), {
-          ...payload,
-          estadoBateria: 'pendiente',
-          creadoEn: serverTimestamp(),
-        });
-        await updateDoc(doc(db, 'users', user!.uid), { baterias_usadas: increment(1) });
       }
       setShowModal(false);
       setEditando(null);
@@ -184,7 +152,7 @@ export default function EmpleadosPage() {
   };
 
   // ── Importar CSV ──────────────────────────────────────────────────────────────
-  // Formato esperado: cedula,nombre,cargo,tipoCargo,area,email,telefono
+  // Formato global estandarizado: Nombre,Apellido,Cédula,Cargo,Área,Email,Teléfono
 
   const onImportarCSV = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -201,48 +169,66 @@ export default function EmpleadosPage() {
       return;
     }
 
-    const puedeImportar = await verificarLimites(validLines.length);
-    if (!puedeImportar) {
-      setCsvLoading(false);
-      e.target.value = '';
-      return;
-    }
-
     let imported = 0;
     let failed = 0;
+    let updated = 0;
     for (const line of validLines) {
       const cols = line.split(',').map(c => c.trim().replace(/^"|"$/g, ''));
-      if (cols.length < 2) { failed++; continue; }
-      const [cedula, nombre, cargo = '', tipoCargo = 'auxiliar', area = '', email = '', telefono = ''] = cols;
-      if (!cedula || !nombre) { failed++; continue; }
+      if (cols.length < 3) { failed++; continue; }
+      const [nombre = '', apellido = '', cedula = '', cargo = '', area = '', email = '', telefono = ''] = cols;
+      const nombreComp = apellido ? `${nombre} ${apellido}`.trim() : nombre;
+      
+      if (!cedula || !nombreComp) { failed++; continue; }
       try {
-        await addDoc(collection(db, 'empleados'), {
-          cedula, nombre, cargo,
-          tipoCargo: (TIPOS_CARGO.find(t => t.value === tipoCargo) ? tipoCargo : 'auxiliar') as TipoCargo,
-          area, email, telefono,
-          empresaId, psicologo: user!.uid,
-          estadoBateria: 'pendiente',
-          creadoEn: serverTimestamp(),
-        });
-        imported++;
+        const q = query(collection(db, 'empleados'), where('cedula', '==', cedula), where('empresaId', '==', empresaId));
+        const snap = await getDocs(q);
+
+        const payload = { 
+           cedula, 
+           nombre: nombreComp, 
+           cargo, 
+           tipoCargo: 'auxiliar', // Predeterminado
+           area, 
+           email, 
+           telefono, 
+           empresaId, 
+           psicologo: user!.uid 
+        };
+
+        if (!snap.empty) {
+          const docId = snap.docs[0].id;
+          await updateDoc(doc(db, 'empleados', docId), payload);
+          updated++;
+        } else {
+          await addDoc(collection(db, 'empleados'), {
+            ...payload,
+            estadoBateria: 'pendiente',
+            creadoEn: serverTimestamp(),
+          });
+          imported++;
+        }
       } catch { failed++; }
-    }
-    if (imported > 0) {
-      await updateDoc(doc(db, 'users', user!.uid), {
-        baterias_usadas: increment(imported)
-      });
     }
 
     setCsvLoading(false);
     e.target.value = '';
     await cargarDatos();
-    if (failed > 0) setError(`${imported} importados, ${failed} fallaron.`);
+    const msgParts = [];
+    if (imported > 0) msgParts.push(`${imported} nuevos`);
+    if (updated > 0) msgParts.push(`${updated} actualizados`);
+    if (failed > 0) msgParts.push(`${failed} fallaron`);
+    
+    if (failed > 0) {
+      setError(`${msgParts.join(', ')}`);
+    } else {
+      alert(`Importación finalizada con éxito. ${msgParts.join(' · ')}`);
+    }
   };
 
   const descargarPlantilla = () => {
-     const headers = "cedula,nombre,cargo,tipoCargo,area,email,telefono\n";
-     const ejemplo = "11111111,Juan Perez,Gerente,jefatura,Gerencia,juan@empresa.com,3000000000\n22222222,Maria Ruiz,Operario,operario,Produccion,maria@empresa.com,3000000000";
-     const blob = new Blob([headers + ejemplo], { type: 'text/csv;charset=utf-8;' });
+     // Usamos la misma plantilla global
+     const content = 'Nombre,Apellido,Cédula,Cargo,Área\nJuan,Pérez,1234567890,Analista,Recursos Humanos\n';
+     const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
      const url = URL.createObjectURL(blob);
      const link = document.createElement("a");
      link.setAttribute("href", url);
@@ -372,7 +358,7 @@ export default function EmpleadosPage() {
             placeholder="Buscar por nombre, cédula o cargo..."
             value={search}
             onChange={e => setSearch(e.target.value)}
-            className="input-field pl-9 w-full"
+            className="input-field pl-10 w-full"
           />
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -422,6 +408,7 @@ export default function EmpleadosPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-white/5">
+                  <th className="text-left px-4 py-3 text-xs text-slate-400 font-medium">#</th>
                   <th className="text-left px-4 py-3 text-xs text-slate-400 font-medium">Empleado</th>
                   <th className="text-left px-4 py-3 text-xs text-slate-400 font-medium hidden md:table-cell">Cédula</th>
                   <th className="text-left px-4 py-3 text-xs text-slate-400 font-medium hidden lg:table-cell">Cargo / Área</th>
@@ -431,11 +418,12 @@ export default function EmpleadosPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {filtrados.map(emp => {
+                {filtrados.map((emp, idx) => {
                   const tipo = TIPOS_CARGO.find(t => t.value === emp.tipoCargo);
                   const estado = ESTADO_LABELS[emp.estadoBateria] ?? ESTADO_LABELS.pendiente;
                   return (
                     <tr key={emp.id} className="hover:bg-white/2 transition-colors group">
+                      <td className="px-4 py-3 text-xs text-slate-500 font-medium">{idx + 1}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center shrink-0 text-sky-400 text-xs font-bold">

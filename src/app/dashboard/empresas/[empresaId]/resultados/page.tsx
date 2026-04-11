@@ -106,21 +106,23 @@ export default function ResultadosJerarquicos() {
   const generarAnalisisIA = async () => {
       setLoadingAi(true);
       try {
-          const res = await fetch('/api/interpretacion', {
+          const res = await fetch('/api/ai-html-report-empresa', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                  tipoEntidad: 'Empresa',
-                  nombre: empresa?.nombre || 'La Empresa',
-                  categorias: {
-                      "Demandas Emocionales": "Alto (80%)",
-                      "Liderazgo y Relaciones": "Medio (40%)",
-                      "Estrés General Poblacional": "Alto (65%) causados principalmente por áreas operativas"
-                  }
+                  empresaNombre: empresa?.nombre || 'La Empresa',
+                  empleadosEvals: empleados.length,
+                  totalCriticos: 1, // Mock
+                  dataArea: chartDataArea,
+                  dataRadar: chartDataRadar
               })
           });
           const data = await res.json();
-          setAiReport(data.analisis);
+          if (data.html) {
+             setAiReport(data.html);
+          } else {
+             console.error("Error generating HTML", data);
+          }
       } catch (err) {
           console.error(err);
       } finally {
@@ -188,19 +190,22 @@ export default function ResultadosJerarquicos() {
                <div className="glass-card p-4 rounded-xl flex flex-col shadow-sm bg-gradient-to-br from-violet-600/20 to-purple-600/10 border border-purple-500/30 hover:bg-violet-600/30 transition-all cursor-pointer" onClick={generarAnalisisIA}>
                   <div className="h-full flex flex-col items-center justify-center text-purple-300">
                      {loadingAi ? <Loader2 size={24} className="animate-spin mb-2" /> : <BrainCircuit size={28} className="mb-2" />}
-                     <span className="font-bold text-sm text-center">Pedir Interpretación Clínica a Gemini IA</span>
+                     <span className="font-bold text-sm text-center">Generar Reporte Completo IA (HTML)</span>
                   </div>
                </div>
             </div>
 
-            {/* AI Report Zone */}
+            {/* AI Report Zone - Renderizado como HTML interactivo */}
             {aiReport && (
-                <div className="bg-gradient-to-r from-purple-900/60 to-slate-900/60 border border-purple-500/30 rounded-2xl p-6 shadow-xl relative overflow-hidden animate-fade-in">
-                    <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl">🤖</div>
-                    <h3 className="text-purple-300 font-bold mb-3 flex items-center gap-2"><Bot size={20}/> Análisis Diagnóstico (IA Generativa Clínico)</h3>
-                    <div className="text-slate-200 leading-relaxed text-sm format-markdown" style={{ whiteSpace: 'pre-line' }}>
-                       {aiReport}
+                <div className="w-full mt-8 animate-fade-in">
+                    <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-purple-300 font-bold flex items-center gap-2"><Bot size={20}/> Reporte HTML Premium</h3>
                     </div>
+                    <iframe 
+                        srcDoc={aiReport} 
+                        className="w-full h-screen border-none rounded-2xl shadow-[0_0_50px_rgba(139,92,246,0.1)] bg-slate-900"
+                        title="AI Generated Report"
+                    />
                 </div>
             )}
 
